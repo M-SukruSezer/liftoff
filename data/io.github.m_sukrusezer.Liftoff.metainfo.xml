@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
-  <id>io.github.liftoff.Liftoff</id>
+  <id>io.github.m_sukrusezer.Liftoff</id>
 
   <name>Liftoff</name>
   <summary>Manage what starts with your session</summary>
@@ -53,32 +53,32 @@
     </p>
   </description>
 
-  <launchable type="desktop-id">io.github.liftoff.Liftoff.desktop</launchable>
+  <launchable type="desktop-id">io.github.m_sukrusezer.Liftoff.desktop</launchable>
 
   <!-- Görüntüler data/screenshots/ içinde; depo GitHub'a gönderildikten
        sonra bu adresler açılır. Flathub başvuru anında erişilebilir olmasını
        şart koşar. -->
   <screenshots>
     <screenshot type="default">
-      <image>https://raw.githubusercontent.com/liftoff/liftoff/main/data/screenshots/applications.png</image>
+      <image>https://raw.githubusercontent.com/M-SukruSezer/liftoff/main/data/screenshots/applications.png</image>
       <caption>Applications that start with your session</caption>
       <caption xml:lang="tr">Oturumla birlikte başlayan uygulamalar</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/liftoff/liftoff/main/data/screenshots/user-services.png</image>
+      <image>https://raw.githubusercontent.com/M-SukruSezer/liftoff/main/data/screenshots/user-services.png</image>
       <caption>Your own background services</caption>
       <caption xml:lang="tr">Kendi arka plan servisleriniz</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/liftoff/liftoff/main/data/screenshots/system-services.png</image>
+      <image>https://raw.githubusercontent.com/M-SukruSezer/liftoff/main/data/screenshots/system-services.png</image>
       <caption>System services, with warnings on critical ones</caption>
       <caption xml:lang="tr">Sistem servisleri, kritik olanlarda uyarıyla</caption>
     </screenshot>
   </screenshots>
 
-  <url type="homepage">https://github.com/liftoff/liftoff</url>
-  <url type="bugtracker">https://github.com/liftoff/liftoff/issues</url>
-  <url type="vcs-browser">https://github.com/liftoff/liftoff</url>
+  <url type="homepage">https://github.com/M-SukruSezer/liftoff</url>
+  <url type="bugtracker">https://github.com/M-SukruSezer/liftoff/issues</url>
+  <url type="vcs-browser">https://github.com/M-SukruSezer/liftoff</url>
 
   <content_rating type="oars-1.1"/>
 

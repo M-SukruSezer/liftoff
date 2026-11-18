@@ -14,8 +14,8 @@ set -euo pipefail
 # yapıyoruz.
 export LC_ALL=C
 
-OLD_ID="io.github.liftoff.Liftoff"
-OLD_REPO="liftoff/liftoff"
+OLD_ID="io.github.m_sukrusezer.Liftoff"
+OLD_REPO="M-SukruSezer/liftoff"
 
 if [ $# -lt 1 ]; then
   echo "Kullanım: $0 <yeni-uygulama-kimliği> [<github-kullanıcı>/<depo>]" >&2

@@ -1,14 +1,14 @@
 # Liftoff — Flatpak manifesti
 #
 # Yerel deneme:
-#   flatpak-builder --user --install --force-clean build io.github.liftoff.Liftoff.yaml
-#   flatpak run io.github.liftoff.Liftoff
+#   flatpak-builder --user --install --force-clean build io.github.m_sukrusezer.Liftoff.yaml
+#   flatpak run io.github.m_sukrusezer.Liftoff
 #
 # Flathub başvurusu için: aşağıdaki "sources" bölümünde `type: dir` yerine
 # yorumdaki `type: git` bloğunu kullanın ve url/tag değerlerini kendi
 # deponuza göre doldurun. Flathub yerel dizinden derlemeyi kabul etmez.
 
-id: io.github.liftoff.Liftoff
+id: io.github.m_sukrusezer.Liftoff
 runtime: org.gnome.Platform
 runtime-version: '51'
 sdk: org.gnome.Sdk
@@ -44,11 +44,11 @@ modules:
     build-commands:
       - install -Dm755 build-aux/liftoff-launcher /app/bin/liftoff
       - mkdir -p /app/share/liftoff
-      - cp -r liftoff /app/share/liftoff/liftoff
-      - install -Dm644 data/io.github.liftoff.Liftoff.desktop /app/share/applications/io.github.liftoff.Liftoff.desktop
-      - install -Dm644 data/io.github.liftoff.Liftoff.metainfo.xml /app/share/metainfo/io.github.liftoff.Liftoff.metainfo.xml
-      - install -Dm644 data/io.github.liftoff.Liftoff.svg /app/share/icons/hicolor/scalable/apps/io.github.liftoff.Liftoff.svg
-      - install -Dm644 data/io.github.liftoff.Liftoff-symbolic.svg /app/share/icons/hicolor/symbolic/apps/io.github.liftoff.Liftoff-symbolic.svg
+      - cp -r liftoff /app/share/M-SukruSezer/liftoff
+      - install -Dm644 data/io.github.m_sukrusezer.Liftoff.desktop /app/share/applications/io.github.m_sukrusezer.Liftoff.desktop
+      - install -Dm644 data/io.github.m_sukrusezer.Liftoff.metainfo.xml /app/share/metainfo/io.github.m_sukrusezer.Liftoff.metainfo.xml
+      - install -Dm644 data/io.github.m_sukrusezer.Liftoff.svg /app/share/icons/hicolor/scalable/apps/io.github.m_sukrusezer.Liftoff.svg
+      - install -Dm644 data/io.github.m_sukrusezer.Liftoff-symbolic.svg /app/share/icons/hicolor/symbolic/apps/io.github.m_sukrusezer.Liftoff-symbolic.svg
     sources:
       - type: dir
         path: .

@@ -3,7 +3,7 @@
 set -euo pipefail
 
 SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-APP_ID="io.github.liftoff.Liftoff"
+APP_ID="io.github.m_sukrusezer.Liftoff"
 
 PREFIX="${XDG_DATA_HOME:-$HOME/.local/share}"
 LIBDIR="$PREFIX/liftoff"

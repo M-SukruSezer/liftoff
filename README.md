@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="data/io.github.liftoff.Liftoff.svg" width="96" alt="Liftoff">
+  <img src="data/io.github.m_sukrusezer.Liftoff.svg" width="96" alt="Liftoff">
 </p>
 
 <h1 align="center">Liftoff</h1>
@@ -94,8 +94,8 @@ yeterlidir — ek bir araç ya da derleme adımı gerekmez.
 
 Depoda başvuru için gereken iki dosya hazır:
 
-- `io.github.liftoff.Liftoff.yaml` — Flatpak manifesti
-- `data/io.github.liftoff.Liftoff.metainfo.xml` — mağaza metaverisi
+- `io.github.m_sukrusezer.Liftoff.yaml` — Flatpak manifesti
+- `data/io.github.m_sukrusezer.Liftoff.metainfo.xml` — mağaza metaverisi
   (`appstreamcli validate` ile doğrulanmıştır)
 
 Flathub'da yayınlanan her uygulama Bazaar'da da listelenir; Bazaar doğrudan
@@ -108,7 +108,7 @@ flatpak install flathub org.gnome.Platform//51 org.gnome.Sdk//51 org.flatpak.Bui
 ```
 
 ```bash
-flatpak run org.flatpak.Builder --user --install --force-clean build io.github.liftoff.Liftoff.yaml
+flatpak run org.flatpak.Builder --user --install --force-clean build io.github.m_sukrusezer.Liftoff.yaml
 ```
 
 ### Kumlamanın bu uygulamaya etkisi
@@ -155,25 +155,30 @@ Gerçekçi seçenekler:
 
 ### Başvurudan önce yapılması gerekenler
 
-1. **Uygulama kimliğini kendinize çevirin.** `io.github.liftoff.Liftoff`
-   kimliği `liftoff` adlı bir GitHub hesabı varsayar; Flathub kimliğin
-   sizin denetimizdeki bir adrese karşılık gelmesini şart koşar. Tek
-   komutla değiştirin:
+Tamamlananlar:
+
+- ✅ **Uygulama kimliği** `io.github.m_sukrusezer.Liftoff` — Flathub
+  kimliğin sizin denetiminizdeki bir adrese karşılık gelmesini ister.
+- ✅ **Ekran görüntüleri** `data/screenshots/` içinde ve metainfo'daki
+  adresler herkese açık depodan erişilebilir durumda.
+
+Kalanlar:
+
+1. **Manifestteki kaynağı** `type: dir` yerine `type: git` + `tag` +
+   `commit` yapın; Flathub yerel dizinden derlemeyi kabul etmez. Önce
+   bir sürüm etiketi atın:
 
    ```bash
-   ./build-aux/rename-app-id.sh io.github.KULLANICI.Liftoff KULLANICI/liftoff
+   git tag -a v1.0.0 -m "Liftoff 1.0.0" && git push origin v1.0.0
    ```
 
-   Betik dosya adlarını, kod içindeki `APP_ID` değerini, menü girdisini,
-   metainfo'yu, manifesti ve kurulum betiklerini birlikte günceller;
-   sonunda metainfo ile menü girdisini doğrular.
-2. **Ekran görüntüleri** `data/screenshots/` içinde hazır. Depoyu
-   GitHub'a gönderdikten sonra metainfo'daki adreslerin açıldığını
-   doğrulayın — Flathub başvuru anında erişilebilir olmasını ister.
-3. **Manifestteki kaynağı** `type: dir` yerine `type: git` + `tag` +
-   `commit` yapın; Flathub yerel dizinden derlemeyi kabul etmez.
-4. [flathub/flathub](https://github.com/flathub/flathub) deposuna
+2. [flathub/flathub](https://github.com/flathub/flathub) deposuna
    manifesti içeren bir Pull Request açın.
+
+> Kimliği ileride yeniden değiştirmek gerekirse
+> `./build-aux/rename-app-id.sh <yeni-kimlik> <kullanıcı>/<depo>` tek
+> komutla dosya adlarını, `APP_ID` değerini, menü girdisini, metaveriyi,
+> manifesti ve kurulum betiklerini birlikte günceller.
 
 ## Değişiklikler nereye yazılır
 
@@ -210,7 +215,7 @@ Onay penceresindeki "Servisi şimdi de durdur" kutusu işaretlenmezse servis
 
 ```
 liftoff.py                 # kaynak ağacından çalıştırmak için başlatıcı
-io.github.liftoff.Liftoff.yaml   # Flatpak manifesti
+io.github.m_sukrusezer.Liftoff.yaml   # Flatpak manifesti
 build-aux/
   liftoff-launcher               # Flatpak içindeki başlatıcı
   rename-app-id.sh               # uygulama kimliğini toptan değiştirir
@@ -225,10 +230,10 @@ liftoff/
   models.py                # arayüzün gördüğü ortak veri modeli
   ui.py                    # GTK4 / libadwaita arayüzü
 data/
-  io.github.liftoff.Liftoff.desktop   # menü girdisi
-  io.github.liftoff.Liftoff.svg       # uygulama simgesi
-  io.github.liftoff.Liftoff-symbolic.svg
-  io.github.liftoff.Liftoff.metainfo.xml  # mağaza metaverisi
+  io.github.m_sukrusezer.Liftoff.desktop   # menü girdisi
+  io.github.m_sukrusezer.Liftoff.svg       # uygulama simgesi
+  io.github.m_sukrusezer.Liftoff-symbolic.svg
+  io.github.m_sukrusezer.Liftoff.metainfo.xml  # mağaza metaverisi
   screenshots/                        # mağaza ekran görüntüleri
 install.sh / uninstall.sh
 ```

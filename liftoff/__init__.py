@@ -2,4 +2,4 @@
 
 __version__ = "1.0.0"
 APP_NAME = "Liftoff"
-APP_ID = "io.github.liftoff.Liftoff"
+APP_ID = "io.github.m_sukrusezer.Liftoff"

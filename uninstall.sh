@@ -2,7 +2,7 @@
 # Liftoff'u kaldırır. Yaptığınız başlangıç ayarlarına dokunmaz.
 set -euo pipefail
 
-APP_ID="io.github.liftoff.Liftoff"
+APP_ID="io.github.m_sukrusezer.Liftoff"
 PREFIX="${XDG_DATA_HOME:-$HOME/.local/share}"
 
 rm -rf "$PREFIX/liftoff"
