@@ -28,18 +28,49 @@ Sekme başlıklarındaki rozetler o kaynakta kaç girdinin açık olduğunu gös
 
 ## Kurulum
 
+En kolayı, root gerektirmeyen kullanıcı kurulumu:
+
 ```bash
 ./install.sh
 ```
 
-Root gerektirmez; her şeyi `~/.local` altına kurar ve uygulamalar menüsüne bir
-girdi ekler. Kaldırmak için `./uninstall.sh`.
+Her şeyi `~/.local` altına kurar ve uygulamalar menüsüne bir girdi ekler.
+Kaldırmak için `./uninstall.sh`. Kurmadan denemek için `./liftoff.py`.
 
-Kurmadan denemek isterseniz:
+### Debian / Ubuntu paketi
 
 ```bash
-./liftoff.py
+make deb
 ```
+
+`dist/` altında kuruluma hazır bir `.deb` üretir; root gerektirmez
+(`fakeroot` kullanır). Kurmak için:
+
+```bash
+sudo apt install ./dist/liftoff_*_all.deb
+```
+
+### Sistem geneli kurulum
+
+```bash
+sudo make install PREFIX=/usr
+```
+
+`DESTDIR` destekler, yani dağıtım paketleri bu hedefi doğrudan çağırabilir:
+`make install DESTDIR="$pkgdir" PREFIX=/usr`.
+
+### Arch ve Fedora
+
+`packaging/PKGBUILD` (AUR) ve `packaging/liftoff.spec` (RPM) hazır; ikisi de
+`make install` hedefini kullanır. **Bu ikisi derlenerek sınanmadı** —
+geliştirme makinesinde `makepkg` ve `rpmbuild` bulunmuyor. Sınanan,
+ikisinin de dayandığı adım: sürüm arşivini indirip açmak ve `make install
+DESTDIR=... PREFIX=/usr` ile kurmak. PKGBUILD'deki `sha256sums` değeri
+v1.0.2 arşivinden hesaplandı ve doğrulandı.
+
+> Yeni sürümde PKGBUILD'in `pkgver` ve `sha256sums`, spec'in `Version`
+> alanı güncellenmelidir. Sağlama toplamı:
+> `curl -sSL <arşiv-adresi> | sha256sum`
 
 ### Gereksinimler
 
@@ -251,10 +282,16 @@ Onay penceresindeki "Servisi şimdi de durdur" kutusu işaretlenmezse servis
 
 ```
 liftoff.py                 # kaynak ağacından çalıştırmak için başlatıcı
-io.github.m_sukrusezer.Liftoff.yaml   # Flatpak manifesti
+Makefile                         # sistem kurulumu (PREFIX / DESTDIR)
+io.github.m_sukrusezer.Liftoff.yaml   # Flatpak manifesti (yerel derleme)
 build-aux/
+  liftoff.in                     # başlatıcı şablonu
   liftoff-launcher               # Flatpak içindeki başlatıcı
+  make-deb.sh                    # .deb üretir
   rename-app-id.sh               # uygulama kimliğini toptan değiştirir
+packaging/
+  PKGBUILD                       # Arch / AUR
+  liftoff.spec                   # Fedora / RPM
 liftoff/
   __main__.py              # python3 -m liftoff
   host.py                  # Flatpak kumlamasında host erişimi
