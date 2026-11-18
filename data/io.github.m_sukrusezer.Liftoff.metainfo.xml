@@ -102,6 +102,12 @@
   </keywords>
 
   <releases>
+    <release version="1.0.1" date="2026-11-18">
+      <description>
+        <p>Fixes the Flatpak install path so the package builds from the tag.</p>
+        <p xml:lang="tr">Flatpak kurulum yolu düzeltildi; paket artık etiketten derleniyor.</p>
+      </description>
+    </release>
     <release version="1.0.0" date="2026-11-18">
       <description>
         <p>First release.</p>

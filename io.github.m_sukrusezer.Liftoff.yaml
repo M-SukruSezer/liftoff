@@ -4,9 +4,9 @@
 #   flatpak-builder --user --install --force-clean build io.github.m_sukrusezer.Liftoff.yaml
 #   flatpak run io.github.m_sukrusezer.Liftoff
 #
-# Flathub başvurusu için: aşağıdaki "sources" bölümünde `type: dir` yerine
-# yorumdaki `type: git` bloğunu kullanın ve url/tag değerlerini kendi
-# deponuza göre doldurun. Flathub yerel dizinden derlemeyi kabul etmez.
+# Kaynak, deponun v1.0.0 etiketidir; Flathub yerel dizinden derlemeyi
+# kabul etmez. Yeni sürüm yayınlarken "tag" ve "commit" değerlerini
+# birlikte güncelleyin.
 
 id: io.github.m_sukrusezer.Liftoff
 runtime: org.gnome.Platform
@@ -44,20 +44,21 @@ modules:
     build-commands:
       - install -Dm755 build-aux/liftoff-launcher /app/bin/liftoff
       - mkdir -p /app/share/liftoff
-      - cp -r liftoff /app/share/M-SukruSezer/liftoff
+      - cp -r liftoff /app/share/liftoff/liftoff
       - install -Dm644 data/io.github.m_sukrusezer.Liftoff.desktop /app/share/applications/io.github.m_sukrusezer.Liftoff.desktop
       - install -Dm644 data/io.github.m_sukrusezer.Liftoff.metainfo.xml /app/share/metainfo/io.github.m_sukrusezer.Liftoff.metainfo.xml
       - install -Dm644 data/io.github.m_sukrusezer.Liftoff.svg /app/share/icons/hicolor/scalable/apps/io.github.m_sukrusezer.Liftoff.svg
       - install -Dm644 data/io.github.m_sukrusezer.Liftoff-symbolic.svg /app/share/icons/hicolor/symbolic/apps/io.github.m_sukrusezer.Liftoff-symbolic.svg
     sources:
-      - type: dir
-        path: .
-        skip:
-          - .git
-          - build
-          - .flatpak-builder
-      # Flathub için yukarıdaki yerine:
-      # - type: git
-      #   url: https://github.com/<kullanıcı-adınız>/liftoff.git
-      #   tag: v1.0.0
-      #   commit: <tag'in tam commit sha'sı>
+      - type: git
+        url: https://github.com/M-SukruSezer/liftoff.git
+        tag: v1.0.0
+        # Etiketin işaret ettiği commit (imzalı etiket nesnesinin değil).
+        commit: 1eef3f241d579fb1c67922d529f617d4e1a4f263
+      # Yerel denemek için yukarıdaki bloğu yorumlayıp bunu açın:
+      # - type: dir
+      #   path: .
+      #   skip:
+      #     - .git
+      #     - build
+      #     - .flatpak-builder

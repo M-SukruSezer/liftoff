@@ -56,10 +56,13 @@ else
 fi
 
 if [ -n "$NEW_REPO" ]; then
-  grep -rl --binary-files=without-match "$OLD_REPO" . \
+  # Yalnızca bir alan adından sonra gelen "<kullanıcı>/<depo>" değişsin.
+  # Düz metin olarak değiştirmek, içinde aynı diziyi taşıyan yolları da
+  # bozuyordu (ör. /app/share/liftoff/liftoff).
+  grep -rl --binary-files=without-match "\.com/$OLD_REPO" . \
     --exclude-dir=.git --exclude-dir=build --exclude-dir=.flatpak-builder \
     | while read -r f; do
-        sed -i "s|$OLD_REPO|$NEW_REPO|g" "$f"
+        sed -i "s|\.com/$OLD_REPO|.com/$NEW_REPO|g" "$f"
       done
   echo "Depo adresi    : $OLD_REPO -> $NEW_REPO"
 fi
