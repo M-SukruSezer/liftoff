@@ -55,7 +55,7 @@ modules:
         url: https://github.com/M-SukruSezer/liftoff.git
         tag: v1.2.0
         # Etiketin işaret ettiği commit (imzalı etiket nesnesinin değil).
-        commit: SURUM-ETIKETLENDIKTEN-SONRA-DOLDURULACAK
+        commit: b5bf76989bab2dbd98d935c25a5eb8ad16f56d66
       # Yerel denemek için yukarıdaki bloğu yorumlayıp bunu açın:
       # - type: dir
       #   path: .
