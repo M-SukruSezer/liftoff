@@ -45,9 +45,12 @@ without learning three different tools.
 
 - **One window, three sources.** Autostart entries, user services and system
   services, each in its own tab with a live count.
-- **Tells you what it actually runs.** Every row shows the real command line
-  and whether the entry is running *right now*, not just whether it is
-  enabled.
+- **The list answers the first question.** Entries are grouped into what
+  starts at login and what you have switched off, and each row carries a
+  small label — running, critical, or the unit state when the switch cannot
+  be used.
+- **Tells you what it actually runs.** Every row shows the real command
+  line behind the entry, not just the name someone gave it.
 - **Warns before you break something.** Entries your session depends on are
   marked, so you know which switch deserves a second thought.
 - **Never destroys anything.** Turning off a system entry writes a personal
@@ -160,6 +163,13 @@ system file at all — it copies the entry into `~/.config/autostart` and
 disables the copy, which is the standard way to override a system default.
 Turning it back on deletes the copy, and the system default applies again.
 
+**Flatpak applications.** Their autostart entry belongs to
+`xdg-desktop-portal`, and the decision behind it lives in the portal's
+permission store. Liftoff writes the file *and* withdraws the background
+permission with `flatpak permission-set`, the same record GNOME Settings
+changes. Without that second step the application has the entry written
+again the next time it runs.
+
 **Services.** Liftoff calls `systemctl enable` and `systemctl disable`,
 exactly as you would in a terminal. System-wide units ask for your password
 through `pkexec` first.
@@ -171,7 +181,7 @@ file you can inspect, and a change you can undo from the same switch.
 
 Switching an entry off does **not** stop what is already running. Autostart
 applications and services are started at login, so the change applies at
-your next login — Liftoff says so at the top of the window. Timers and
+your next login, which the heading above the list says. Timers and
 sockets you disable stop arming immediately, but a running service keeps
 running until it stops on its own or you stop it.
 
@@ -211,7 +221,10 @@ liftoff/
 ├─ ui.py             GTK4 / libadwaita interface
 ├─ xdg_autostart.py  .desktop autostart entries
 ├─ systemd.py        user and system units
+├─ portal.py         Flatpak background permissions
 ├─ desktop.py        .desktop reader and writer
+├─ icons.py          finds each entry's own icon
+├─ apps.py           installed applications, for the picker
 ├─ i18n.py           English and Turkish strings
 ├─ settings.py       stored preferences
 ├─ host.py           host access when sandboxed

@@ -46,9 +46,11 @@ birini kapatmanızı sağlar.
 
 - **Tek pencere, üç kaynak.** Autostart girdileri, kullanıcı servisleri ve
   sistem servisleri; her biri kendi sekmesinde, canlı sayaçla.
-- **Gerçekte ne çalıştırdığını söyler.** Her satır asıl komut satırını ve
-  girdinin yalnızca etkin olup olmadığını değil, *şu anda* çalışıp
-  çalışmadığını gösterir.
+- **Liste ilk sorunuzu yanıtlar.** Girdiler açılışta başlayanlar ve
+  kapattıklarınız diye gruplanır; her satır küçük bir etiket taşır —
+  çalışıyor, kritik ya da anahtar kullanılamıyorsa birimin durumu.
+- **Gerçekte ne çalıştırdığını söyler.** Her satır girdiye verilmiş adı
+  değil, arkasındaki asıl komut satırını gösterir.
 - **Bir şeyi bozmadan önce uyarır.** Oturumunuzun bağlı olduğu girdiler
   işaretlidir; hangi anahtarın iki kez düşünmeyi hak ettiğini bilirsiniz.
 - **Hiçbir şeyi yok etmez.** Bir sistem girdisini kapatmak kişisel bir
@@ -162,6 +164,13 @@ dokunmaz — girdiyi `~/.config/autostart` içine kopyalar ve kopyayı kapatır;
 bu, bir sistem varsayılanını geçersiz kılmanın standart yoludur. Tekrar
 açtığınızda kopya silinir ve sistem varsayılanı yeniden geçerli olur.
 
+**Flatpak uygulamaları.** Bu uygulamaların autostart girdisi
+`xdg-desktop-portal`'a aittir ve arkasındaki karar portalın izin deposunda
+durur. Liftoff hem dosyayı yazar *hem de* arka plan iznini
+`flatpak permission-set` ile geri alır — GNOME Ayarlar'ın değiştirdiği
+kaydın aynısı. Bu ikinci adım olmadan uygulama bir dahaki çalışmasında
+girdiyi yeniden yazdırır.
+
 **Servisler.** Liftoff `systemctl enable` ve `systemctl disable` komutlarını
 çağırır; uçbirimde sizin yapacağınızın aynısı. Sistem geneli birimler önce
 `pkexec` aracılığıyla parolanızı sorar.
@@ -174,7 +183,7 @@ alabilirsiniz.
 
 Bir girdiyi kapatmak hâlihazırda **çalışanı durdurmaz**. Autostart
 uygulamaları ve servisler girişte başlatıldığı için değişiklik bir sonraki
-oturum açışınızda geçerli olur; Liftoff bunu pencerenin üstünde yazar.
+oturum açışınızda geçerli olur; listenin üstündeki başlık bunu söyler.
 Kapattığınız zamanlayıcı ve soketler hemen kurulmayı bırakır, ama çalışan
 bir servis kendi duruncaya ya da siz durduruncaya kadar çalışmayı sürdürür.
 
@@ -215,7 +224,10 @@ liftoff/
 ├─ ui.py             GTK4 / libadwaita arayüzü
 ├─ xdg_autostart.py  .desktop autostart girdileri
 ├─ systemd.py        kullanıcı ve sistem birimleri
+├─ portal.py         Flatpak arka plan izinleri
 ├─ desktop.py        .desktop okuyucu ve yazıcı
+├─ icons.py          her girdinin kendi simgesini bulur
+├─ apps.py           kurulu uygulamalar, seçici için
 ├─ i18n.py           İngilizce ve Türkçe metinler
 ├─ settings.py       saklanan tercihler
 ├─ host.py           kumlandığında ana makineye erişim
