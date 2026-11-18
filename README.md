@@ -162,18 +162,23 @@ Tamamlananlar:
 - ✅ **Ekran görüntüleri** `data/screenshots/` içinde ve metainfo'daki
   adresler herkese açık depodan erişilebilir durumda.
 
-Kalanlar:
+- ✅ **Sürüm etiketi** `v1.0.1` ve manifestteki kaynak `type: git` +
+  `tag` + `commit` — Flathub yerel dizinden derlemeyi kabul etmez.
 
-1. **Manifestteki kaynağı** `type: dir` yerine `type: git` + `tag` +
-   `commit` yapın; Flathub yerel dizinden derlemeyi kabul etmez. Önce
-   bir sürüm etiketi atın:
+Kalan tek adım:
 
-   ```bash
-   git tag -a v1.0.0 -m "Liftoff 1.0.0" && git push origin v1.0.0
-   ```
+1. [flathub/flathub](https://github.com/flathub/flathub) deposuna
+   `io.github.m_sukrusezer.Liftoff.yaml` dosyasını içeren bir Pull
+   Request açın. İncelemede en çok sorulacak nokta
+   `--talk-name=org.freedesktop.Flatpak` izni olacak; gerekçesi ve
+   ölçümleri yukarıdaki **Kumlamanın bu uygulamaya etkisi** bölümünde.
 
-2. [flathub/flathub](https://github.com/flathub/flathub) deposuna
-   manifesti içeren bir Pull Request açın.
+### Yeni sürüm çıkarırken
+
+`liftoff/__init__.py` içindeki `__version__`, metaverideki `<release>`
+girdisi, etiket ve manifestteki `tag`/`commit` birlikte güncellenmeli.
+Etiketi attıktan sonra manifestteki `commit` değerini etiketin işaret
+ettiği commit'e ayarlayın — imzalı etiket nesnesinin SHA'sına değil.
 
 > Kimliği ileride yeniden değiştirmek gerekirse
 > `./build-aux/rename-app-id.sh <yeni-kimlik> <kullanıcı>/<depo>` tek
