@@ -1,6 +1,6 @@
 # Maintainer: Muhammed Şükrü SEZER <61243521+M-SukruSezer@users.noreply.github.com>
 pkgname=liftoff
-pkgver=1.1.0
+pkgver=1.2.0
 pkgrel=1
 pkgdesc="See and disable the applications and services that start automatically"
 arch=('any')
@@ -9,7 +9,7 @@ license=('MIT')
 depends=('python' 'python-gobject' 'gtk4' 'libadwaita')
 optdepends=('polkit: enabling and disabling system-wide services')
 source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
-sha256sums=('e941da69cf5d161b62a78ea0ccd632f65439b620cdfcfdbf29855ea9ba05d591')
+sha256sums=('SURUM-ETIKETLENDIKTEN-SONRA-DOLDURULACAK')
 
 package() {
   cd "$pkgname-$pkgver"

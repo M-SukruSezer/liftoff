@@ -103,6 +103,26 @@
   </keywords>
 
   <releases>
+    <release version="1.2.0" date="2026-11-18">
+      <description>
+        <p>
+          The list is now split into what starts at login and what you have
+          switched off, so the state of your session can be read at a glance.
+        </p>
+        <p xml:lang="tr">
+          Liste artık açılışta başlayanlar ile kapattıklarınız diye ayrılıyor;
+          oturumunuzun durumu tek bakışta okunuyor.
+        </p>
+        <ul>
+          <li>Each row carries a small state label instead of spelling the state out</li>
+          <li xml:lang="tr">Her satır durumu yazıyla anlatmak yerine küçük bir etiketle gösteriyor</li>
+          <li>Only genuine warnings are marked in the list; other notes stay in the details</li>
+          <li xml:lang="tr">Listede yalnızca gerçek uyarılar işaretleniyor, diğer notlar ayrıntılarda kalıyor</li>
+          <li>The per-row menu is gone: clicking a row opens the details, which now hold edit and delete</li>
+          <li xml:lang="tr">Satır menüsü kalktı: satıra tıklamak düzenleme ve silmeyi de taşıyan ayrıntıları açıyor</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.1.0" date="2026-11-18">
       <description>
         <p>

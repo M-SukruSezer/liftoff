@@ -1,6 +1,6 @@
 """Liftoff — Linux başlangıç uygulamaları ve servisleri yöneticisi."""
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 APP_NAME = "Liftoff"
 APP_ID = "io.github.m_sukrusezer.Liftoff"
 APP_DEVELOPER = "Muhammed Şükrü SEZER"

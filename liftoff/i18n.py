@@ -164,20 +164,20 @@ TR: dict[str, str] = {
     "turn on your computer, and lets you turn them off.":
         "Bilgisayar açıldığında kendiliğinden başlayan uygulama ve servisleri "
         "gösterir, kapatmanızı sağlar.",
-    "<p>Flatpak applications now stay off once you turn them off.</p>"
+    "<p>The list is now split into what starts at login and what you have "
+    "switched off.</p>"
     "<ul>"
-    "<li>Every row shows the application's or service's own icon</li>"
-    "<li>Startup entries can be edited, icon included</li>"
-    "<li>New entries can be picked from the installed applications</li>"
-    "<li>Added a keyboard shortcuts window</li>"
+    "<li>Each row carries a small state label</li>"
+    "<li>Only genuine warnings are marked in the list</li>"
+    "<li>Clicking a row opens the details, which now hold edit and delete</li>"
     "</ul>":
-        "<p>Flatpak uygulamaları artık kapattığınızda kapalı kalıyor.</p>"
+        "<p>Liste artık açılışta başlayanlar ile kapattıklarınız diye "
+        "ayrılıyor.</p>"
         "<ul>"
-        "<li>Her satır uygulamanın ya da servisin kendi simgesini "
-        "gösteriyor</li>"
-        "<li>Başlangıç girdileri simgesiyle birlikte düzenlenebiliyor</li>"
-        "<li>Yeni girdiler kurulu uygulamalar arasından seçilebiliyor</li>"
-        "<li>Klavye kısayolları penceresi eklendi</li>"
+        "<li>Her satır küçük bir durum etiketi taşıyor</li>"
+        "<li>Listede yalnızca gerçek uyarılar işaretleniyor</li>"
+        "<li>Satıra tıklamak düzenleme ve silmeyi de taşıyan ayrıntıları "
+        "açıyor</li>"
         "</ul>",
     # --- liste grupları --------------------------------------------------
     "Starts at login": "Açılışta başlıyor",

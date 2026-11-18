@@ -1323,15 +1323,13 @@ class MainWindow(Adw.ApplicationWindow):
             license_type=Gtk.License.MIT_X11,
             release_notes_version=__version__,
             release_notes=_(
-                "<p>Flatpak applications now stay off once you turn them "
-                "off.</p>"
+                "<p>The list is now split into what starts at login and "
+                "what you have switched off.</p>"
                 "<ul>"
-                "<li>Every row shows the application's or service's own "
-                "icon</li>"
-                "<li>Startup entries can be edited, icon included</li>"
-                "<li>New entries can be picked from the installed "
-                "applications</li>"
-                "<li>Added a keyboard shortcuts window</li>"
+                "<li>Each row carries a small state label</li>"
+                "<li>Only genuine warnings are marked in the list</li>"
+                "<li>Clicking a row opens the details, which now hold edit "
+                "and delete</li>"
                 "</ul>"
             ),
             debug_info=self._debug_info(),
