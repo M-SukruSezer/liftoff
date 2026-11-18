@@ -165,13 +165,44 @@ Tamamlananlar:
 - ✅ **Sürüm etiketi** `v1.0.1` ve manifestteki kaynak `type: git` +
   `tag` + `commit` — Flathub yerel dizinden derlemeyi kabul etmez.
 
-Kalan tek adım:
+### Flathub'ın üretken yapay zekâ politikası
 
-1. [flathub/flathub](https://github.com/flathub/flathub) deposuna
-   `io.github.m_sukrusezer.Liftoff.yaml` dosyasını içeren bir Pull
-   Request açın. İncelemede en çok sorulacak nokta
-   `--talk-name=org.freedesktop.Flatpak` izni olacak; gerekçesi ve
-   ölçümleri yukarıdaki **Kumlamanın bu uygulamaya etkisi** bölümünde.
+Başvurmadan önce okunması gereken kural:
+<https://docs.flathub.org/docs/for-app-authors/requirements#generative-ai-policy>
+
+Politikanın bu projeyi doğrudan ilgilendiren maddeleri:
+
+- **Flathub manifestleri yapay zekâ üretimi ya da yapay zekâ destekli
+  içerik barındıramaz; bunu bildirmek de muaf tutmaz.** Depodaki
+  `io.github.m_sukrusezer.Liftoff.yaml` yapay zekâ tarafından yazıldı,
+  yani yerel derleme için kullanılabilir ama **Flathub'a gönderilemez**.
+  Başvuru için manifesti elle kendiniz yazmanız gerekir.
+- **Yapay zekâ araçları Flathub başvuru PR'larını açamaz ya da
+  otomatikleştiremez**; PR açıklamalarını, commit mesajlarını, inceleme
+  yorumlarını ve yanıtlarını da üretemez.
+- **Bildirim yükümlülüğü:** Uygulamada veya paketlemesinde bulunduğunu
+  bildiğiniz ya da makul olarak öyle düşündüğünüz yapay zekâ üretimi
+  malzemeyi bildirmeniz gerekir; bildirim *etkilenen kısımları ve
+  yaklaşık kapsamı* belirtmelidir. Bu projede kaynak kodun, bu belgenin
+  ve arayüz metinlerinin tamamına yakını yapay zekâ üretimidir.
+- Bildirilen malzeme inceleyicinin takdirine bırakılır; inceleyici
+  üretilen malzemenin kapsamına veya rolüne bakarak başvuruyu
+  reddedebilir. Bildirmek kabul edileceği anlamına gelmez.
+- Bildirilmeyen ya da yanlış aktarılan malzeme reddedilmeye yol açabilir;
+  tekrarlanan ihlaller kalıcı yasaklamaya kadar gidebilir.
+
+Ayrıca yerelleştirme kuralı makine üretimi veya karışık çevirilerin
+kullanılamayacağını söylüyor. Bu depodaki Türkçe/İngilizce arayüz metinleri
+yapay zekâ tarafından yazıldı, dolayısıyla başvuru öncesinde gözden
+geçirilmesi gerekir.
+
+### Kalan adım
+
+[flathub/flathub](https://github.com/flathub/flathub) deposunun `new-pr`
+dalına, **kendi yazdığınız** manifesti içeren bir Pull Request açın.
+İncelemede en çok sorulacak teknik nokta
+`--talk-name=org.freedesktop.Flatpak` izni olacak; gerekçesi ve
+ölçümleri yukarıdaki **Kumlamanın bu uygulamaya etkisi** bölümünde.
 
 ### Yeni sürüm çıkarırken
 
