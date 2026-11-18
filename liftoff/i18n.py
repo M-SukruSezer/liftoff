@@ -179,6 +179,18 @@ TR: dict[str, str] = {
         "<li>Yeni girdiler kurulu uygulamalar arasından seçilebiliyor</li>"
         "<li>Klavye kısayolları penceresi eklendi</li>"
         "</ul>",
+    # --- liste grupları --------------------------------------------------
+    "Starts at login": "Açılışta başlıyor",
+    "Enabled": "Açık",
+    "Off": "Kapalı",
+    "turning one off applies at your next login":
+        "kapatmak bir sonraki oturum açılışında geçerli olur",
+    "changes apply at the next startup":
+        "değişiklikler bir sonraki açılışta geçerli olur",
+    "1 entry": "1 girdi",
+    "%d entries": "%d girdi",
+    "critical": "kritik",
+    "running": "çalışıyor",
     # --- düzenleme ve ekleme ------------------------------------------------
     "Edit…": "Düzenle…",
     "Edit entry": "Girdiyi düzenle",

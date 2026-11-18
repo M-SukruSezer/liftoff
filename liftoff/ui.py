@@ -94,6 +94,10 @@ class ItemRow(Adw.ActionRow):
 
         self.add_prefix(self._build_icon())
 
+        pill = self._state_pill()
+        if pill is not None:
+            self.add_suffix(pill)
+
         warn = self._warning_icon()
         if warn is not None:
             self.add_suffix(warn)
@@ -109,9 +113,11 @@ class ItemRow(Adw.ActionRow):
             )
         self._handler = self.switch.connect("notify::active", self._on_toggled)
         self.add_suffix(self.switch)
-        self.set_activatable_widget(self.switch)
 
-        self.add_suffix(self._build_menu())
+        # Satıra tıklamak anahtarı değil ayrıntıları açar: anahtar küçük bir
+        # hedef, ayrıntılar ise her eylemin (düzenle, sil) bulunduğu yer.
+        self.set_activatable(True)
+        self.connect("activated", self._on_activated)
 
     # ------------------------------------------------------------- görünüm
 
@@ -119,53 +125,54 @@ class ItemRow(Adw.ActionRow):
         parts: list[str] = []
         if self.item.description:
             parts.append(self.item.description)
-        if self.item.source is Source.AUTOSTART:
-            if self.item.command:
-                parts.append(self.item.command)
-        elif self.item.running is True:
-            parts.append(_("running now"))
-        elif self.item.running is False:
-            parts.append(_("not running now"))
+        if self.item.source is Source.AUTOSTART and self.item.command:
+            parts.append(self.item.command)
         return " · ".join(parts)
+
+    def _state_pill(self) -> Gtk.Widget | None:
+        """Satırın sağındaki küçük durum etiketi."""
+        if self.item.critical:
+            text, css = _("critical"), "warning"
+        elif self.item.running is True:
+            text, css = _("running"), "dim-label"
+        elif not self.item.toggleable:
+            text, css = self.item.unit_state, "dim-label"
+        else:
+            return None
+        label = Gtk.Label(label=text, valign=Gtk.Align.CENTER)
+        label.add_css_class("caption")
+        label.add_css_class(css)
+        if self.item.notes:
+            label.set_tooltip_text(self._notes_text())
+        return label
+
+    def _notes_text(self) -> str:
+        return "\n".join("• " + n.render() for n in self.item.notes)
 
     def _build_icon(self) -> Gtk.Widget:
         """Uygulamanın/servisin kendi logosu varsa onu, yoksa genel görseli."""
-        image = Gtk.Image(pixel_size=32, valign=Gtk.Align.CENTER)
+        image = Gtk.Image(pixel_size=36, valign=Gtk.Align.CENTER)
         apply_icon(image, icons.candidates(self.item), icons.fallback(self.item))
         if self.item.hidden_entry:
             image.add_css_class("dim-label")
         return image
 
     def _warning_icon(self) -> Gtk.Widget | None:
-        if not self.item.notes:
+        """Yalnızca uyarı niteliğindeki notlar satırda işaretlenir.
+
+        Bilgi niteliğindeki notlar listeyi kalabalıklaştırmasın diye
+        ayrıntılar penceresinde kalır; kritik girdilerde zaten rozet var.
+        """
+        if self.item.critical or not any(n.warn for n in self.item.notes):
             return None
-        critical = self.item.critical or any(n.warn for n in self.item.notes)
-        icon = Gtk.Image(
-            icon_name="dialog-warning-symbolic" if critical
-            else "dialog-information-symbolic",
-            valign=Gtk.Align.CENTER,
-        )
-        icon.set_tooltip_text("\n".join("• " + n.render() for n in self.item.notes))
-        icon.add_css_class("warning" if critical else "dim-label")
+        icon = Gtk.Image(icon_name="dialog-warning-symbolic",
+                         valign=Gtk.Align.CENTER)
+        icon.set_tooltip_text(self._notes_text())
+        icon.add_css_class("warning")
         return icon
 
-    def _build_menu(self) -> Gtk.Widget:
-        menu = Gio.Menu()
-        if xdg_autostart.is_editable(self.item):
-            menu.append(_("Edit…"), f"row.edit::{self.item.key}")
-        menu.append(_("Details"), f"row.details::{self.item.key}")
-        if self.item.source is Source.AUTOSTART and xdg_autostart.can_remove(self.item):
-            label = _("Restore default") if self.item.system_path else _("Delete entry")
-            menu.append(label, f"row.remove::{self.item.key}")
-
-        button = Gtk.MenuButton(
-            icon_name="view-more-symbolic",
-            valign=Gtk.Align.CENTER,
-            menu_model=menu,
-        )
-        button.add_css_class("flat")
-        button.set_tooltip_text(_("More actions"))
-        return button
+    def _on_activated(self, *_args) -> None:
+        self.activate_action("row.details", GLib.Variant.new_string(self.item.key))
 
     # ------------------------------------------------------------- eylemler
 
@@ -200,12 +207,12 @@ class ItemsPage(Gtk.Box):
             vexpand=True,
         )
 
-        self.list_box = Gtk.ListBox(selection_mode=Gtk.SelectionMode.NONE)
-        self.list_box.add_css_class("boxed-list")
-
-        self.counter = Gtk.Label(xalign=0)
-        self.counter.add_css_class("dim-label")
-        self.counter.add_css_class("caption")
+        # Girdiler iki gruba ayrılır: açılışta başlayanlar ve kapatılanlar.
+        self.on_group = Adw.PreferencesGroup()
+        self.off_group = Adw.PreferencesGroup()
+        # (eklendiği grup, satır): girdinin durumu değişse de doğru gruptan
+        # kaldırabilmek için satırın nereye konduğunu saklıyoruz.
+        self._rows: list[tuple[Adw.PreferencesGroup, "ItemRow"]] = []
 
         # Gizlenmiş sistem bileşenleri varsa kullanıcıya tek tıkla göster.
         self.hint = Gtk.Button(has_frame=False, valign=Gtk.Align.CENTER, visible=False)
@@ -217,13 +224,14 @@ class ItemsPage(Gtk.Box):
         self.hint.set_child(hint_label)
         self._hint_label = hint_label
 
-        counter_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
-        counter_box.append(self.counter)
-        counter_box.append(self.hint)
+        hint_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6,
+                           halign=Gtk.Align.START)
+        hint_box.append(self.hint)
 
-        content = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
-        content.append(counter_box)
-        content.append(self.list_box)
+        content = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=18)
+        content.append(hint_box)
+        content.append(self.on_group)
+        content.append(self.off_group)
 
         clamp = Adw.Clamp(maximum_size=760, child=content, margin_top=12,
                           margin_bottom=24, margin_start=12, margin_end=12)
@@ -322,8 +330,13 @@ class ItemsPage(Gtk.Box):
                 % hidden_count
             )
 
+    def _clear_rows(self) -> None:
+        for group, row in self._rows:
+            group.remove(row)
+        self._rows = []
+
     def rebuild(self) -> None:
-        self.list_box.remove_all()
+        self._clear_rows()
         self._update_hint()
 
         if self.error is not None:
@@ -351,19 +364,40 @@ class ItemsPage(Gtk.Box):
             self.window.update_counts()
             return
 
-        for item in items:
-            self.list_box.append(ItemRow(item, self))
+        on_items = [i for i in items if i.enabled]
+        off_items = [i for i in items if not i.enabled]
 
-        enabled = sum(1 for i in items if i.enabled)
-        if len(items) == 1:
-            label = _("Showing 1 entry · %d on · %d off") % (
-                enabled, 1 - enabled)
-        else:
-            label = _("Showing %d entries · %d on · %d off") % (
-                len(items), enabled, len(items) - enabled)
-        self.counter.set_label(label)
+        for group, group_items in ((self.on_group, on_items),
+                                   (self.off_group, off_items)):
+            for item in group_items:
+                row = ItemRow(item, self)
+                group.add(row)
+                self._rows.append((group, row))
+
+        self.on_group.set_visible(bool(on_items))
+        self.off_group.set_visible(bool(off_items))
+        self.on_group.set_title(self._on_title())
+        self.on_group.set_description(
+            "%s · %s" % (self._count_label(len(on_items)), self._effect_note())
+        )
+        self.off_group.set_title(_("Off"))
+        self.off_group.set_description(self._count_label(len(off_items)))
         self.stack.set_visible_child_name("list")
         self.window.update_counts()
+
+    def _on_title(self) -> str:
+        if self.source is Source.AUTOSTART:
+            return _("Starts at login")
+        return _("Enabled")
+
+    def _effect_note(self) -> str:
+        if self.source is Source.AUTOSTART:
+            return _("turning one off applies at your next login")
+        return _("changes apply at the next startup")
+
+    @staticmethod
+    def _count_label(count: int) -> str:
+        return _("1 entry") if count == 1 else _("%d entries") % count
 
     # ------------------------------------------------------------ açma/kapama
 
@@ -439,7 +473,7 @@ class ItemsPage(Gtk.Box):
     def _on_details(self, _action, param) -> None:
         item = self._find_item(param.get_string())
         if item:
-            DetailsDialog(item).present(self.window)
+            DetailsDialog(item, self).present(self.window)
 
     def _on_edit(self, _action, param) -> None:
         item = self._find_item(param.get_string())
@@ -489,10 +523,12 @@ class ItemsPage(Gtk.Box):
 
 
 class DetailsDialog(Adw.Dialog):
-    """Bir girdinin tüm teknik ayrıntıları."""
+    """Bir girdinin ayrıntıları ve ona uygulanabilecek eylemler."""
 
-    def __init__(self, item: Item):
-        super().__init__(title=_("Details"), content_width=520, content_height=520)
+    def __init__(self, item: Item, page: "ItemsPage" | None = None):
+        super().__init__(title=_("Details"), content_width=520, content_height=600)
+        self.item = item
+        self.page = page
 
         page = Adw.PreferencesPage()
         group = Adw.PreferencesGroup(title=item.name, description=item.description or None)
@@ -536,9 +572,39 @@ class DetailsDialog(Adw.Dialog):
                 notes.add(Adw.ActionRow(title=note.render(), title_lines=0))
             page.add(notes)
 
+        removable = (item.source is Source.AUTOSTART
+                     and xdg_autostart.can_remove(item))
+        if removable and self.page is not None:
+            actions = Adw.PreferencesGroup()
+            label = (_("Restore default") if item.system_path
+                     else _("Delete entry"))
+            button = Gtk.Button(label=label, halign=Gtk.Align.CENTER,
+                                margin_top=6)
+            button.add_css_class("destructive-action")
+            button.add_css_class("pill")
+            button.connect("clicked", self._on_remove)
+            actions.add(button)
+            page.add(actions)
+
+        header = Adw.HeaderBar()
+        if xdg_autostart.is_editable(item) and self.page is not None:
+            edit = Gtk.Button(label=_("Edit…"))
+            edit.connect("clicked", self._on_edit)
+            header.pack_end(edit)
+
         view = Adw.ToolbarView(content=page)
-        view.add_top_bar(Adw.HeaderBar())
+        view.add_top_bar(header)
         self.set_child(view)
+
+    def _on_edit(self, _button) -> None:
+        window = self.page.window
+        self.close()
+        EditEntryDialog(window, self.item).present(window)
+
+    def _on_remove(self, _button) -> None:
+        page = self.page
+        self.close()
+        page.activate_action("row.remove", GLib.Variant.new_string(self.item.key))
 
     def _copy(self, _button, value: str) -> None:
         display = Gdk.Display.get_default()
@@ -1105,15 +1171,12 @@ class MainWindow(Adw.ApplicationWindow):
         header.pack_end(self.refresh_button)
         header.pack_end(self.search_toggle)
 
-        self.banner = Adw.Banner(title=_("Changes take effect at your next login."))
-        self.banner.set_revealed(False)
 
         self.switcher_bar = Adw.ViewSwitcherBar(stack=self.view_stack, reveal=False)
 
         self.toolbar = Adw.ToolbarView(content=self.view_stack)
         self.toolbar.add_top_bar(header)
         self.toolbar.add_top_bar(self.search_bar)
-        self.toolbar.add_top_bar(self.banner)
         self.toolbar.add_bottom_bar(self.switcher_bar)
 
         self.toasts = Adw.ToastOverlay(child=self.toolbar)
@@ -1237,7 +1300,6 @@ class MainWindow(Adw.ApplicationWindow):
     def _on_page_changed(self, *_args) -> None:
         page = self.current_page()
         self.add_button.set_visible(page.source is Source.AUTOSTART)
-        self.banner.set_revealed(page.source is not Source.AUTOSTART)
 
     def _show_about(self) -> None:
         about = Adw.AboutDialog(
@@ -1346,7 +1408,6 @@ class MainWindow(Adw.ApplicationWindow):
         self.menu_button.set_tooltip_text(_("Menu"))
         self.menu_button.set_menu_model(self._build_menu())
         self.add_button.set_menu_model(self._build_add_menu())
-        self.banner.set_title(_("Changes take effect at your next login."))
         for source, page in self.pages.items():
             self.view_stack.get_page(page).set_title(source.title)
             page.retranslate()
