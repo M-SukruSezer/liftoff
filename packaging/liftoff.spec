@@ -1,5 +1,5 @@
 Name:           liftoff
-Version:        1.0.2
+Version:        1.0.3
 Release:        1%{?dist}
 Summary:        See and disable the applications and services that start automatically
 
@@ -46,7 +46,7 @@ appstream-util validate-relax --nonet \
 
 %files
 %license LICENSE
-%doc README.md
+%doc README.md README.tr.md
 %{_bindir}/liftoff
 %{_datadir}/liftoff/
 %{_datadir}/applications/io.github.m_sukrusezer.Liftoff.desktop
@@ -55,6 +55,8 @@ appstream-util validate-relax --nonet \
 %{_datadir}/icons/hicolor/symbolic/apps/io.github.m_sukrusezer.Liftoff-symbolic.svg
 
 %changelog
+* Wed Nov 18 2026 Muhammed Şükrü SEZER <61243521+M-SukruSezer@users.noreply.github.com> - 1.0.3-1
+- Rewrite the documentation and publish installable packages
 * Wed Nov 18 2026 Muhammed Şükrü SEZER <61243521+M-SukruSezer@users.noreply.github.com> - 1.0.2-1
 - Add native packaging: Makefile, Debian package, AUR and RPM definitions
 * Wed Nov 18 2026 Muhammed Şükrü SEZER <61243521+M-SukruSezer@users.noreply.github.com> - 1.0.1-1

@@ -1,80 +1,128 @@
-<p align="center">
-  <img src="data/io.github.m_sukrusezer.Liftoff.svg" width="96" alt="Liftoff">
-</p>
+<div align="center">
 
-<h1 align="center">Liftoff</h1>
+<img src="data/io.github.m_sukrusezer.Liftoff.svg" width="128" alt="Liftoff">
 
-<p align="center">
-  Linux'ta bilgisayar açıldığında <strong>kendiliğinden başlayan</strong> uygulama ve
-  servisleri tek bir pencerede gösterir; istediklerinizi kapatmanızı sağlar.
-</p>
+# Liftoff
 
-GTK4 + libadwaita ile yazılmıştır, GNOME dışındaki masaüstlerinde de çalışır.
+**Manage what starts with your session.**
 
-## Neleri gösterir
+See every application and service that launches by itself when you turn on
+your computer — and switch off the ones you never asked for.
 
-Linux'ta "açılışta çalışan şeyler" üç ayrı yere dağılmıştır; Liftoff üçünü tek
-arayüzde toplar:
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/M-SukruSezer/liftoff)](https://github.com/M-SukruSezer/liftoff/releases)
+[![Platform: Linux](https://img.shields.io/badge/Platform-Linux-informational)](#requirements)
 
-| Sekme | Kaynak | Yetki |
+[Türkçe](README.tr.md)
+
+<img src="data/screenshots/applications.png" width="820" alt="Liftoff showing startup applications">
+
+</div>
+
+---
+
+## Why
+
+A fresh Linux install starts quietly. A year later, a dozen things launch
+behind your back: a chat client, a sync daemon, a game launcher, an updater
+that only ever updates itself. Your login takes longer, your fans spin up,
+and nothing tells you who the culprits are.
+
+The reason is that Linux has no single list. Startup items hide in **three
+unrelated places**, each with its own rules and its own tooling:
+
+| Where | What lives there | Usually edited with |
 |---|---|---|
-| **Uygulamalar** | `~/.config/autostart` ve `/etc/xdg/autostart` (`.desktop` girdileri) | Gerekmez |
-| **Kullanıcı servisleri** | `systemctl --user` birimleri (service, socket, timer, path) | Gerekmez |
-| **Sistem servisleri** | `systemctl` birimleri (sistem geneli) | `pkexec` ile yönetici |
+| `~/.config/autostart` and `/etc/xdg/autostart` | Desktop applications | a text editor |
+| `systemctl --user` | Your own background services | the terminal |
+| `systemctl` (system) | System-wide services | the terminal, as root |
 
-Her satırda girdinin adı, açıklaması, çalıştırdığı komut, o anda çalışıp
-çalışmadığı ve varsa uyarıları görünür. Sağdaki anahtarla açıp kapatırsınız.
-Sekme başlıklarındaki rozetler o kaynakta kaç girdinin açık olduğunu gösterir.
+Most desktop environments show you only the first one, and only part of it.
+Liftoff shows all three in one window, and lets you turn any of them off
+without learning three different tools.
 
-## Kurulum
+## Features
 
-En kolayı, root gerektirmeyen kullanıcı kurulumu:
+- **One window, three sources.** Autostart entries, user services and system
+  services, each in its own tab with a live count.
+- **Tells you what it actually runs.** Every row shows the real command line
+  and whether the entry is running *right now*, not just whether it is
+  enabled.
+- **Warns before you break something.** Entries your session depends on are
+  marked, so you know which switch deserves a second thought.
+- **Never destroys anything.** Turning off a system entry writes a personal
+  override; turning it back on removes that override and restores the
+  original exactly as it was.
+- **Finds things fast.** Search by name, command or description, filter to
+  enabled items only, and reveal the background components that are hidden
+  by default.
+- **Add your own.** Create a new startup entry from the app, pick any
+  command, and it appears on your next login.
+- **Speaks your language.** English and Turkish, switchable at any time.
+  The first run follows your system language.
+- **Looks like it belongs.** Built with GTK4 and libadwaita, so it follows
+  your system theme, dark mode and accent colour.
+
+## Screenshots
+
+<table>
+<tr>
+<td width="50%"><img src="data/screenshots/user-services.png" alt="User services"></td>
+<td width="50%"><img src="data/screenshots/system-services.png" alt="System services"></td>
+</tr>
+<tr>
+<td align="center"><b>User services</b><br>Your own systemd units, no password needed</td>
+<td align="center"><b>System services</b><br>System-wide units, with an administrator prompt</td>
+</tr>
+</table>
+
+## Install
+
+Liftoff is pure Python. One package works on **every architecture** —
+64-bit, 32-bit and ARM alike — which is why the files below are marked
+`all` and `noarch` instead of `x86_64`.
+
+### Debian, Ubuntu, Linux Mint, Pop!\_OS
 
 ```bash
-./install.sh
+sudo apt install ./liftoff_1.0.3_all.deb
 ```
 
-Her şeyi `~/.local` altına kurar ve uygulamalar menüsüne bir girdi ekler.
-Kaldırmak için `./uninstall.sh`. Kurmadan denemek için `./liftoff.py`.
-
-### Debian / Ubuntu paketi
+### Fedora, RHEL, openSUSE
 
 ```bash
-make deb
+sudo dnf install ./liftoff-1.0.3-1.noarch.rpm
 ```
 
-`dist/` altında kuruluma hazır bir `.deb` üretir; root gerektirmez
-(`fakeroot` kullanır). Kurmak için:
+### Arch Linux
 
 ```bash
-sudo apt install ./dist/liftoff_*_all.deb
+git clone https://github.com/M-SukruSezer/liftoff.git
+cd liftoff/packaging && makepkg -si
 ```
 
-### Sistem geneli kurulum
+### Any distribution, system-wide
 
 ```bash
-sudo make install PREFIX=/usr
+tar xf liftoff-1.0.3.tar.gz && cd liftoff-1.0.3 && sudo make install PREFIX=/usr
 ```
 
-`DESTDIR` destekler, yani dağıtım paketleri bu hedefi doğrudan çağırabilir:
-`make install DESTDIR="$pkgdir" PREFIX=/usr`.
+### Any distribution, just for you — no root
 
-### Arch ve Fedora
+```bash
+tar xf liftoff-1.0.3.tar.gz && cd liftoff-1.0.3 && ./install.sh
+```
 
-`packaging/PKGBUILD` (AUR) ve `packaging/liftoff.spec` (RPM) hazır; ikisi de
-`make install` hedefini kullanır. **Bu ikisi derlenerek sınanmadı** —
-geliştirme makinesinde `makepkg` ve `rpmbuild` bulunmuyor. Sınanan,
-ikisinin de dayandığı adım: sürüm arşivini indirip açmak ve `make install
-DESTDIR=... PREFIX=/usr` ile kurmak. PKGBUILD'deki `sha256sums` değeri
-v1.0.2 arşivinden hesaplandı ve doğrulandı.
+This installs into `~/.local`. If `~/.local/bin` is not on your `PATH`, the
+script tells you how to add it. Remove it again with `./uninstall.sh`.
 
-> Yeni sürümde PKGBUILD'in `pkgver` ve `sha256sums`, spec'in `Version`
-> alanı güncellenmelidir. Sağlama toplamı:
-> `curl -sSL <arşiv-adresi> | sha256sum`
+Downloads are on the [releases page](https://github.com/M-SukruSezer/liftoff/releases).
 
-### Gereksinimler
+## Requirements
 
-Python 3.9+ ve GTK4/libadwaita Python bağlayıcıları:
+Python 3.9 or newer, GTK 4, libadwaita 1, and the Python bindings for both.
+Every current desktop distribution ships these; most already have them
+installed.
 
 ```bash
 # Debian / Ubuntu
@@ -87,233 +135,89 @@ sudo dnf install python3-gobject gtk4 libadwaita
 sudo pacman -S python-gobject gtk4 libadwaita
 ```
 
-## Kullanım
+`pkexec` (from PolicyKit) is needed only to change system-wide services. It
+is already present on every desktop install; without it, the first two tabs
+still work normally.
 
-- **Arama** — `Ctrl+F`, ad ve komut içinde arar.
-- **Yenile** — `Ctrl+R`.
-- **Gizli sistem bileşenlerini göster** — menüden. `NoDisplay=true` işaretli
-  arka plan bileşenleri varsayılan olarak gizlidir (GNOME'un kendi
-  "Başlangıç Uygulamaları" aracı da böyle davranır). Listenin üstündeki
-  "*N* gizli sistem bileşeni gizlendi — göster" bağlantısı da aynı işi yapar.
-- **Yalnızca açık olanlar** — menüden, yalnızca etkin girdileri listeler.
-- **Yeni girdi ekle** — sol üstteki `+` düğmesi; ad ve komut yeter.
-- **Ayrıntılar** — satır sonundaki `⋯` menüsü; dosya yolları, birim durumu
-  gibi her alanı kopyalayabilirsiniz.
-- **Dil** — menüdeki `Dil` / `Language` alt menüsünden Türkçe ile İngilizce
-  arasında geçersiniz; değişiklik anında uygulanır.
+## How it works
 
-## Dil
+Liftoff does not invent a storage format of its own. It writes exactly what
+the underlying system expects, so anything you change stays correct even if
+you later uninstall Liftoff.
 
-Arayüz Türkçe ve İngilizce destekler.
+**Applications.** Turning off an entry that lives in your home folder sets
+`Hidden=true` in that file. Turning off a *system* entry does not touch the
+system file at all — it copies the entry into `~/.config/autostart` and
+disables the copy, which is the standard way to override a system default.
+Turning it back on deletes the copy, and the system default applies again.
 
-**İlk açılışta** hiçbir tercih kayıtlı değilken dil sistem diline göre
-belirlenir: sistem dili Türkçe ise **Türkçe**, diğer her durumda
-**İngilizce**. Sıralama `gettext` ile aynıdır — `LANGUAGE`, `LC_ALL`,
-`LC_MESSAGES`, `LANG`.
+**Services.** Liftoff calls `systemctl enable` and `systemctl disable`,
+exactly as you would in a terminal. System-wide units ask for your password
+through `pkexec` first.
 
-Menüden başka bir dil seçtiğinizde tercih
-`~/.config/liftoff/settings.json` içine yazılır ve bundan sonra sistem
-dilinden bağımsız olarak hep o dil kullanılır. Dosyayı silerseniz uygulama
-yeniden ilk açılış davranışına döner.
+Nothing is deleted, and nothing is rewritten in place. Every change is a
+file you can inspect, and a change you can undo from the same switch.
 
-Çeviriler `liftoff/i18n.py` içinde düz bir sözlükte durur; kaynak metinler
-İngilizcedir. Yeni bir dil eklemek için `LANGUAGES` sözlüğüne kodu ve adını,
-`CATALOG` sözlüğüne de İngilizce metinleri o dile eşleyen bir sözlük eklemek
-yeterlidir — ek bir araç ya da derleme adımı gerekmez.
+## When changes take effect
 
-## Flatpak ve Flathub
+Switching an entry off does **not** stop what is already running. Autostart
+applications and services are started at login, so the change applies at
+your next login — Liftoff says so at the top of the window. Timers and
+sockets you disable stop arming immediately, but a running service keeps
+running until it stops on its own or you stop it.
 
-Depoda başvuru için gereken iki dosya hazır:
+## Language
 
-- `io.github.m_sukrusezer.Liftoff.yaml` — Flatpak manifesti
-- `data/io.github.m_sukrusezer.Liftoff.metainfo.xml` — mağaza metaverisi
-  (`appstreamcli validate` ile doğrulanmıştır)
+The interface is available in **English** and **Turkish**, and you can
+switch at any time from the menu — the window retranslates in place, with
+no restart.
 
-Flathub'da yayınlanan her uygulama Bazaar'da da listelenir; Bazaar doğrudan
-Flathub altyapısını kullanır, ayrı bir başvuru gerekmez.
+On first run Liftoff follows your system language: Turkish if your system is
+Turkish, English otherwise. Your choice is remembered in
+`~/.config/liftoff/settings.json` and takes precedence from then on.
 
-### Yerel derleme
+## Building packages
 
 ```bash
-flatpak install flathub org.gnome.Platform//51 org.gnome.Sdk//51 org.flatpak.Builder
+make deb                    # Debian package  -> dist/
+make install PREFIX=/usr    # straight into the filesystem
+make check                  # validate the desktop entry and AppStream data
 ```
+
+`make install` honours `DESTDIR` and `PREFIX`, so it drops into any
+distribution's packaging workflow unchanged. The Arch and RPM definitions in
+[`packaging/`](packaging) do exactly that.
+
+A [Flatpak manifest](io.github.m_sukrusezer.Liftoff.yaml) is included for
+building a sandboxed bundle locally:
 
 ```bash
-flatpak run org.flatpak.Builder --user --install --force-clean build io.github.m_sukrusezer.Liftoff.yaml
+flatpak-builder --user --install build io.github.m_sukrusezer.Liftoff.yaml
 ```
 
-### Kumlamanın bu uygulamaya etkisi
-
-Liftoff host sistemini yöneten bir araç, Flatpak ise uygulamayı host'tan
-ayırmak için var. Bu gerilim ölçüldü — aynı kod, aynı makinede:
-
-| | İzinsiz kumlama | Manifestteki izinlerle | Host (yerel kurulum) |
-|---|---|---|---|
-| Autostart girdisi | 2 | **18** | 18 |
-| Kullanıcı servisi | çalışmıyor | **45** | 45 |
-| Sistem servisi | çalışmıyor | **173** | 173 |
-
-Üç izin bunun için gerekli:
-
-- `--filesystem=xdg-config/autostart:create` — girdileri gerçek
-  `~/.config/autostart` dizinine yazmak için. Flatpak `XDG_CONFIG_HOME`
-  değişkenini uygulamanın özel dizinine çevirir; oturum yöneticisi orayı
-  hiç okumaz, bu yüzden kod kumlama içinde o değişkeni yok sayar.
-- `--filesystem=host-etc:ro` — `/etc/xdg/autostart` kumlamada görünmez,
-  host'taki hâli `/run/host/etc` altından okunur.
-- `--talk-name=org.freedesktop.Flatpak` — GNOME runtime'ı systemd
-  içermez; `systemctl` ve `pkexec` `flatpak-spawn --host` ile host
-  üzerinde çalıştırılır.
-
-Bu mantığın tamamı `liftoff/host.py` içinde ve yalnızca kumlama içinde
-devreye girer; yerel kurulumda davranış hiç değişmez.
-
-### Flathub incelemesi — başvurmadan önce bilin
-
-`--talk-name=org.freedesktop.Flatpak` host'ta herhangi bir komut
-çalıştırmaya izin verir, yani kumlamayı pratikte kaldırır. Flathub bunu
-geniş bir izin sayar, gerekçe ister ve çoğu başvuruda kaldırılmasını
-önerir. Liftoff'ta kaldırmak mümkün değil: servis sekmelerinin ikisi de
-tamamen host'a bağlı. Bu yüzden başvurunun tartışmaya açılması ya da
-reddedilmesi gerçek bir olasılıktır — manifest teknik olarak doğru olsa da.
-
-Gerçekçi seçenekler:
-
-1. **Flathub'a başvurmak** — izinleri yukarıdaki gerekçelerle açıklayın.
-2. **Yerel paket olarak dağıtmak** — `install.sh` zaten bunu yapıyor;
-   AUR, `.deb` veya `.rpm` bu tür sistem araçları için alışılmış yol ve
-   hiçbir izin kısıtı yok.
-
-### Başvurudan önce yapılması gerekenler
-
-Tamamlananlar:
-
-- ✅ **Uygulama kimliği** `io.github.m_sukrusezer.Liftoff` — Flathub
-  kimliğin sizin denetiminizdeki bir adrese karşılık gelmesini ister.
-- ✅ **Ekran görüntüleri** `data/screenshots/` içinde ve metainfo'daki
-  adresler herkese açık depodan erişilebilir durumda.
-
-- ✅ **Sürüm etiketi** `v1.0.1` ve manifestteki kaynak `type: git` +
-  `tag` + `commit` — Flathub yerel dizinden derlemeyi kabul etmez.
-
-### Flathub'ın üretken yapay zekâ politikası
-
-Başvurmadan önce okunması gereken kural:
-<https://docs.flathub.org/docs/for-app-authors/requirements#generative-ai-policy>
-
-Politikanın bu projeyi doğrudan ilgilendiren maddeleri:
-
-- **Flathub manifestleri yapay zekâ üretimi ya da yapay zekâ destekli
-  içerik barındıramaz; bunu bildirmek de muaf tutmaz.** Depodaki
-  `io.github.m_sukrusezer.Liftoff.yaml` yapay zekâ tarafından yazıldı,
-  yani yerel derleme için kullanılabilir ama **Flathub'a gönderilemez**.
-  Başvuru için manifesti elle kendiniz yazmanız gerekir.
-- **Yapay zekâ araçları Flathub başvuru PR'larını açamaz ya da
-  otomatikleştiremez**; PR açıklamalarını, commit mesajlarını, inceleme
-  yorumlarını ve yanıtlarını da üretemez.
-- **Bildirim yükümlülüğü:** Uygulamada veya paketlemesinde bulunduğunu
-  bildiğiniz ya da makul olarak öyle düşündüğünüz yapay zekâ üretimi
-  malzemeyi bildirmeniz gerekir; bildirim *etkilenen kısımları ve
-  yaklaşık kapsamı* belirtmelidir. Bu projede kaynak kodun, bu belgenin
-  ve arayüz metinlerinin tamamına yakını yapay zekâ üretimidir.
-- Bildirilen malzeme inceleyicinin takdirine bırakılır; inceleyici
-  üretilen malzemenin kapsamına veya rolüne bakarak başvuruyu
-  reddedebilir. Bildirmek kabul edileceği anlamına gelmez.
-- Bildirilmeyen ya da yanlış aktarılan malzeme reddedilmeye yol açabilir;
-  tekrarlanan ihlaller kalıcı yasaklamaya kadar gidebilir.
-
-Ayrıca yerelleştirme kuralı makine üretimi veya karışık çevirilerin
-kullanılamayacağını söylüyor. Bu depodaki Türkçe/İngilizce arayüz metinleri
-yapay zekâ tarafından yazıldı, dolayısıyla başvuru öncesinde gözden
-geçirilmesi gerekir.
-
-### Kalan adım
-
-[flathub/flathub](https://github.com/flathub/flathub) deposunun `new-pr`
-dalına, **kendi yazdığınız** manifesti içeren bir Pull Request açın.
-İncelemede en çok sorulacak teknik nokta
-`--talk-name=org.freedesktop.Flatpak` izni olacak; gerekçesi ve
-ölçümleri yukarıdaki **Kumlamanın bu uygulamaya etkisi** bölümünde.
-
-### Yeni sürüm çıkarırken
-
-`liftoff/__init__.py` içindeki `__version__`, metaverideki `<release>`
-girdisi, etiket ve manifestteki `tag`/`commit` birlikte güncellenmeli.
-Etiketi attıktan sonra manifestteki `commit` değerini etiketin işaret
-ettiği commit'e ayarlayın — imzalı etiket nesnesinin SHA'sına değil.
-
-> Kimliği ileride yeniden değiştirmek gerekirse
-> `./build-aux/rename-app-id.sh <yeni-kimlik> <kullanıcı>/<depo>` tek
-> komutla dosya adlarını, `APP_ID` değerini, menü girdisini, metaveriyi,
-> manifesti ve kurulum betiklerini birlikte günceller.
-
-## Değişiklikler nereye yazılır
-
-Hiçbir şey kalıcı olarak bozulmaz; her işlem geri alınabilir.
-
-**Uygulama girdileri.** Kullanıcıya ait bir girdiyi kapatırken dosyaya
-`Hidden=true` ve `X-GNOME-Autostart-enabled=false` yazılır — dosyanın geri
-kalanı, yorumları dahil, olduğu gibi korunur.
-
-Bir **sistem girdisini** (`/etc/xdg/autostart`) kapattığınızda sistem dosyasına
-dokunulmaz: dosya `~/.config/autostart` içine kopyalanır, kapatma anahtarları
-bu kopyaya eklenir ve kopya `X-Liftoff-Override=true` ile işaretlenir. Girdiyi
-tekrar açtığınızda bu kopya silinir, yani sistem varsayılanına tam olarak
-dönülür. `⋯ → Varsayılana dön` aynı işi doğrudan yapar.
-
-**Servisler.** `systemctl enable` / `disable` çağrılır; sistem servisleri için
-`pkexec` üzerinden. Maskelenmiş bir birimi açarken önce `unmask` uygulanır.
-Onay penceresindeki "Servisi şimdi de durdur" kutusu işaretlenmezse servis
-çalışmaya devam eder ve değişiklik bir sonraki açılışta etkili olur.
-
-## Güvenlik önlemleri
-
-- Oturumu veya sistemi bozabilecek birimler (`systemd-*`, `gdm`, `dbus`,
-  `polkit`, `pipewire`, `NetworkManager`, `apparmor` ve benzerleri) **kritik**
-  olarak işaretlenir; kapatmadan önce uyarı penceresi çıkar.
-- `static`, `generated` ve `indirect` durumdaki birimler listelenmez —
-  bunlar zaten tek tek açılıp kapatılamaz.
-- Durumu değiştirilemeyen birimlerin anahtarı pasif görünür, nedeni ipucunda
-  yazar.
-- Hiçbir işlem sessizce başarısız olmaz: hata ya da yetki reddi durumunda
-  anahtar eski konumuna döner ve alt kısımda bildirim çıkar.
-
-## Yapı
+## Project layout
 
 ```
-liftoff.py                 # kaynak ağacından çalıştırmak için başlatıcı
-Makefile                         # sistem kurulumu (PREFIX / DESTDIR)
-io.github.m_sukrusezer.Liftoff.yaml   # Flatpak manifesti (yerel derleme)
-build-aux/
-  liftoff.in                     # başlatıcı şablonu
-  liftoff-launcher               # Flatpak içindeki başlatıcı
-  make-deb.sh                    # .deb üretir
-  rename-app-id.sh               # uygulama kimliğini toptan değiştirir
-packaging/
-  PKGBUILD                       # Arch / AUR
-  liftoff.spec                   # Fedora / RPM
 liftoff/
-  __main__.py              # python3 -m liftoff
-  host.py                  # Flatpak kumlamasında host erişimi
-  i18n.py                  # Türkçe/İngilizce çeviri kataloğu
-  settings.py              # ~/.config/liftoff/settings.json (dil tercihi)
-  desktop.py               # .desktop ayrıştırıcı/yazıcı (yorumları korur)
-  xdg_autostart.py         # autostart girdileri: listele / aç / kapat / ekle / sil
-  systemd.py               # systemd kullanıcı ve sistem birimleri
-  models.py                # arayüzün gördüğü ortak veri modeli
-  ui.py                    # GTK4 / libadwaita arayüzü
-data/
-  io.github.m_sukrusezer.Liftoff.desktop   # menü girdisi
-  io.github.m_sukrusezer.Liftoff.svg       # uygulama simgesi
-  io.github.m_sukrusezer.Liftoff-symbolic.svg
-  io.github.m_sukrusezer.Liftoff.metainfo.xml  # mağaza metaverisi
-  screenshots/                        # mağaza ekran görüntüleri
-install.sh / uninstall.sh
+├─ ui.py             GTK4 / libadwaita interface
+├─ xdg_autostart.py  .desktop autostart entries
+├─ systemd.py        user and system units
+├─ desktop.py        .desktop reader and writer
+├─ i18n.py           English and Turkish strings
+├─ settings.py       stored preferences
+├─ host.py           host access when sandboxed
+└─ models.py         shared data types
 ```
 
-Arka uçların tamamı ayrı iş parçacığında çalışır; `pkexec` şifre beklerken
-bile pencere donmaz.
+The `.desktop` writer is line based: it keeps comments, key order and
+formatting intact, and only touches the keys it has to.
 
-## Lisans
+## Contributing
 
-MIT
+Issues and pull requests are welcome at
+<https://github.com/M-SukruSezer/liftoff>. Adding a language means adding one
+dictionary to `liftoff/i18n.py` — no build step, no tooling to install.
+
+## License
+
+[MIT](LICENSE)

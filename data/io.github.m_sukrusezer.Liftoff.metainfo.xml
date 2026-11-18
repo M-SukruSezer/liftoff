@@ -102,6 +102,12 @@
   </keywords>
 
   <releases>
+    <release version="1.0.3" date="2026-11-18">
+      <description>
+        <p>Rewritten documentation and ready-to-install packages for Debian, Fedora and Arch.</p>
+        <p xml:lang="tr">Belgeler yeniden yazıldı; Debian, Fedora ve Arch için kuruluma hazır paketler eklendi.</p>
+      </description>
+    </release>
     <release version="1.0.2" date="2026-11-18">
       <description>
         <p>Adds native packaging: a Makefile, a Debian package and AUR/RPM definitions.</p>

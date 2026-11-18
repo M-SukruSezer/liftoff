@@ -1,6 +1,6 @@
 # Maintainer: Muhammed Şükrü SEZER <61243521+M-SukruSezer@users.noreply.github.com>
 pkgname=liftoff
-pkgver=1.0.2
+pkgver=1.0.3
 pkgrel=1
 pkgdesc="See and disable the applications and services that start automatically"
 arch=('any')
