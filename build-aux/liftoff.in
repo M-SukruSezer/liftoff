@@ -1,0 +1,3 @@
+#!/bin/sh
+# Liftoff başlatıcı — Makefile tarafından üretildi, elle düzenlemeyin.
+exec env PYTHONPATH="@PKGDIR@${PYTHONPATH:+:$PYTHONPATH}" python3 -m liftoff "$@"

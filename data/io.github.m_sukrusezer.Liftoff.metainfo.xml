@@ -102,6 +102,12 @@
   </keywords>
 
   <releases>
+    <release version="1.0.2" date="2026-11-18">
+      <description>
+        <p>Adds native packaging: a Makefile, a Debian package and AUR/RPM definitions.</p>
+        <p xml:lang="tr">Yerel paketleme eklendi: Makefile, Debian paketi ve AUR/RPM tanımları.</p>
+      </description>
+    </release>
     <release version="1.0.1" date="2026-11-18">
       <description>
         <p>Fixes the Flatpak install path so the package builds from the tag.</p>

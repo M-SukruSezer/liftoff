@@ -1,0 +1,18 @@
+# Maintainer: Muhammed Şükrü SEZER <61243521+M-SukruSezer@users.noreply.github.com>
+pkgname=liftoff
+pkgver=1.0.2
+pkgrel=1
+pkgdesc="See and disable the applications and services that start automatically"
+arch=('any')
+url="https://github.com/M-SukruSezer/liftoff"
+license=('MIT')
+depends=('python' 'python-gobject' 'gtk4' 'libadwaita')
+optdepends=('polkit: enabling and disabling system-wide services')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
+sha256sums=('SURUM-ETIKETLENDIKTEN-SONRA-DOLDURULACAK')
+
+package() {
+  cd "$pkgname-$pkgver"
+  make install DESTDIR="$pkgdir" PREFIX=/usr
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}
