@@ -103,6 +103,20 @@
   </keywords>
 
   <releases>
+    <release version="1.2.1" date="2026-11-18">
+      <description>
+        <p>
+          A new application icon: a launch console, where every switch is
+          something that starts with your session. The symbolic icon is
+          redrawn to match it.
+        </p>
+        <p xml:lang="tr">
+          Yeni bir uygulama simgesi: her şalteri oturumla birlikte başlayan
+          bir öğe olan bir fırlatma konsolu. Simgesel ikon da ona göre
+          yeniden çizildi.
+        </p>
+      </description>
+    </release>
     <release version="1.2.0" date="2026-11-18">
       <description>
         <p>

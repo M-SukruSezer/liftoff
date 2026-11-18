@@ -1323,14 +1323,8 @@ class MainWindow(Adw.ApplicationWindow):
             license_type=Gtk.License.MIT_X11,
             release_notes_version=__version__,
             release_notes=_(
-                "<p>The list is now split into what starts at login and "
-                "what you have switched off.</p>"
-                "<ul>"
-                "<li>Each row carries a small state label</li>"
-                "<li>Only genuine warnings are marked in the list</li>"
-                "<li>Clicking a row opens the details, which now hold edit "
-                "and delete</li>"
-                "</ul>"
+                "<p>A new application icon: a launch console, where every "
+                "switch is something that starts with your session.</p>"
             ),
             debug_info=self._debug_info(),
             debug_info_filename="liftoff-debug.txt",

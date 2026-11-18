@@ -164,21 +164,10 @@ TR: dict[str, str] = {
     "turn on your computer, and lets you turn them off.":
         "Bilgisayar açıldığında kendiliğinden başlayan uygulama ve servisleri "
         "gösterir, kapatmanızı sağlar.",
-    "<p>The list is now split into what starts at login and what you have "
-    "switched off.</p>"
-    "<ul>"
-    "<li>Each row carries a small state label</li>"
-    "<li>Only genuine warnings are marked in the list</li>"
-    "<li>Clicking a row opens the details, which now hold edit and delete</li>"
-    "</ul>":
-        "<p>Liste artık açılışta başlayanlar ile kapattıklarınız diye "
-        "ayrılıyor.</p>"
-        "<ul>"
-        "<li>Her satır küçük bir durum etiketi taşıyor</li>"
-        "<li>Listede yalnızca gerçek uyarılar işaretleniyor</li>"
-        "<li>Satıra tıklamak düzenleme ve silmeyi de taşıyan ayrıntıları "
-        "açıyor</li>"
-        "</ul>",
+    "<p>A new application icon: a launch console, where every switch is "
+    "something that starts with your session.</p>":
+        "<p>Yeni bir uygulama simgesi: her şalteri oturumla birlikte "
+        "başlayan bir öğe olan bir fırlatma konsolu.</p>",
     # --- liste grupları --------------------------------------------------
     "Starts at login": "Açılışta başlıyor",
     "Enabled": "Açık",

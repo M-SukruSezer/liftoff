@@ -1,5 +1,5 @@
 Name:           liftoff
-Version:        1.2.0
+Version:        1.2.1
 Release:        1%{?dist}
 Summary:        See and disable the applications and services that start automatically
 
@@ -55,6 +55,8 @@ appstream-util validate-relax --nonet \
 %{_datadir}/icons/hicolor/symbolic/apps/io.github.m_sukrusezer.Liftoff-symbolic.svg
 
 %changelog
+* Wed Nov 18 2026 Muhammed Şükrü SEZER <61243521+M-SukruSezer@users.noreply.github.com> - 1.2.1-1
+- New application icon, with a matching symbolic icon
 * Wed Nov 18 2026 Muhammed Şükrü SEZER <61243521+M-SukruSezer@users.noreply.github.com> - 1.2.0-1
 - Group the list into what starts at login and what does not
 - Move the per-row menu into the details dialog

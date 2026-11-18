@@ -7,7 +7,7 @@
 # Kaynak, deponun sürüm etiketidir; Flathub yerel dizinden derlemeyi
 # kabul etmez. Yeni sürüm yayınlarken "tag" ve "commit" değerlerini
 # birlikte güncelleyin:
-#   git rev-parse v1.2.0^{commit}
+#   git rev-parse v1.2.1^{commit}
 
 id: io.github.m_sukrusezer.Liftoff
 runtime: org.gnome.Platform
@@ -53,9 +53,9 @@ modules:
     sources:
       - type: git
         url: https://github.com/M-SukruSezer/liftoff.git
-        tag: v1.2.0
+        tag: v1.2.1
         # Etiketin işaret ettiği commit (imzalı etiket nesnesinin değil).
-        commit: 6befb696ae96ce78cf63327818f6134bdc7921e7
+        commit: SURUM-ETIKETLENDIKTEN-SONRA-DOLDURULACAK
       # Yerel denemek için yukarıdaki bloğu yorumlayıp bunu açın:
       # - type: dir
       #   path: .

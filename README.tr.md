@@ -98,13 +98,13 @@ Liftoff saf Python ile yazılmıştır. Tek bir paket **her mimaride** çalış�
 ### Debian, Ubuntu, Linux Mint, Pop!\_OS
 
 ```bash
-sudo apt install ./liftoff_1.2.0_all.deb
+sudo apt install ./liftoff_1.2.1_all.deb
 ```
 
 ### Fedora, RHEL, openSUSE
 
 ```bash
-sudo dnf install ./liftoff-1.2.0-1.noarch.rpm
+sudo dnf install ./liftoff-1.2.1-1.noarch.rpm
 ```
 
 ### Arch Linux
@@ -117,13 +117,13 @@ cd liftoff/packaging && makepkg -si
 ### Her dağıtım, sistem geneli
 
 ```bash
-tar xf liftoff-1.2.0.tar.gz && cd liftoff-1.2.0 && sudo make install PREFIX=/usr
+tar xf liftoff-1.2.1.tar.gz && cd liftoff-1.2.1 && sudo make install PREFIX=/usr
 ```
 
 ### Her dağıtım, yalnızca kendiniz için — root gerekmez
 
 ```bash
-tar xf liftoff-1.2.0.tar.gz && cd liftoff-1.2.0 && ./install.sh
+tar xf liftoff-1.2.1.tar.gz && cd liftoff-1.2.1 && ./install.sh
 ```
 
 Bu kurulum `~/.local` altına yapılır. `~/.local/bin` dizini `PATH`
