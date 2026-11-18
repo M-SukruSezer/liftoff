@@ -9,7 +9,7 @@ license=('MIT')
 depends=('python' 'python-gobject' 'gtk4' 'libadwaita')
 optdepends=('polkit: enabling and disabling system-wide services')
 source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
-sha256sums=('d90c225e1b89b6c50c8fc267909936cb3930d657e33e4dbbe1b90edfd5ab3440')
+sha256sums=('cd760d0fc089a9f88223376143ba69d1859b6be9e41ca9ec298d9afe92cea075')
 
 package() {
   cd "$pkgname-$pkgver"
