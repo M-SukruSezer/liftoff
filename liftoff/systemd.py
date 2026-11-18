@@ -135,6 +135,20 @@ def _list_unit_files(user: bool) -> dict[str, str]:
     return out
 
 
+def _exec_start_path(value: str) -> str:
+    """``{ path=/usr/bin/foo ; argv[]=... }`` içinden program yolunu alır."""
+    marker = "path="
+    start = value.find(marker)
+    if start == -1:
+        return ""
+    rest = value[start + len(marker):].lstrip()
+    for stop in (" ;", " ", "}"):
+        end = rest.find(stop)
+        if end != -1:
+            rest = rest[:end]
+    return rest.strip()
+
+
 def is_template(unit: str) -> bool:
     """``foo@.service`` gibi örneği olmayan şablon birim mi?
 
@@ -154,6 +168,7 @@ def _show_batch(user: bool, units: list[str], info: dict[str, dict[str, str]]) -
         "--property=ActiveState",
         "--property=UnitFileState",
         "--property=FragmentPath",
+        "--property=ExecStart",
         *units,
     ]
     proc = _run(cmd)
@@ -247,6 +262,7 @@ def list_items(user: bool) -> list[Item]:
                 "Critical component: turning it off may break your session "
                 "or system", warn=True))
         frag = (props.get("FragmentPath") or "").strip()
+        exec_path = _exec_start_path(props.get("ExecStart") or "")
 
         items.append(
             Item(
@@ -256,6 +272,7 @@ def list_items(user: bool) -> list[Item]:
                 enabled=enabled,
                 description=description,
                 command=frag,
+                exec_path=exec_path,
                 scope=Scope.USER if user else Scope.SYSTEM,
                 toggleable=state not in FIXED_STATES,
                 needs_root=not user,

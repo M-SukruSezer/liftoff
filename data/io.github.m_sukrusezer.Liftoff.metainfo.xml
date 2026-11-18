@@ -9,8 +9,8 @@
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>MIT</project_license>
 
-  <developer id="io.github.liftoff">
-    <name>Liftoff</name>
+  <developer id="io.github.m_sukrusezer">
+    <name>Muhammed Şükrü SEZER</name>
   </developer>
 
   <description>
@@ -79,6 +79,7 @@
   <url type="homepage">https://github.com/M-SukruSezer/liftoff</url>
   <url type="bugtracker">https://github.com/M-SukruSezer/liftoff/issues</url>
   <url type="vcs-browser">https://github.com/M-SukruSezer/liftoff</url>
+  <url type="help">https://github.com/M-SukruSezer/liftoff#readme</url>
 
   <content_rating type="oars-1.1"/>
 
@@ -102,6 +103,30 @@
   </keywords>
 
   <releases>
+    <release version="1.1.0" date="2026-11-18">
+      <description>
+        <p>
+          Flatpak applications now stay off once you turn them off: Liftoff
+          also withdraws the background permission that made the portal
+          write their autostart entry again.
+        </p>
+        <p xml:lang="tr">
+          Flatpak uygulamaları artık kapattığınızda kapalı kalıyor: Liftoff,
+          portalın autostart girdisini yeniden yazmasına yol açan arka plan
+          iznini de geri alıyor.
+        </p>
+        <ul>
+          <li>Every row shows the application's or service's own icon</li>
+          <li xml:lang="tr">Her satır uygulamanın ya da servisin kendi simgesini gösteriyor</li>
+          <li>Startup entries can be edited: name, description, command, icon and any other key in the .desktop file</li>
+          <li xml:lang="tr">Başlangıç girdileri düzenlenebiliyor: ad, açıklama, komut, simge ve .desktop dosyasındaki diğer anahtarlar</li>
+          <li>New entries can be picked from the installed applications</li>
+          <li xml:lang="tr">Yeni girdiler kurulu uygulamalar arasından seçilebiliyor</li>
+          <li>Added a keyboard shortcuts window</li>
+          <li xml:lang="tr">Klavye kısayolları penceresi eklendi</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.0.3" date="2026-11-18">
       <description>
         <p>Rewritten documentation and ready-to-install packages for Debian, Fedora and Arch.</p>

@@ -57,9 +57,18 @@ birini kapatmanızı sağlar.
 - **Aradığınızı hemen bulur.** Ada, komuta veya açıklamaya göre arayın,
   yalnızca açık olanları süzün, varsayılan olarak gizlenen arka plan
   bileşenlerini görünür yapın.
-- **Kendi girdinizi ekleyin.** Uygulamanın içinden yeni bir başlangıç
-  girdisi oluşturun, istediğiniz komutu seçin; bir sonraki girişinizde
-  devreye girer.
+- **Kapattığınız Flatpak uygulaması kapalı kalır.** Bu uygulamaların
+  autostart girdisini portal yazar; Liftoff dosyayı kapatmakla yetinmez,
+  arka plan iznini de geri alır. Yoksa uygulama bir dahaki çalışmasında
+  girdiyi yeniden yazdırır.
+- **Kendi girdinizi ekleyin.** Kurulu uygulamalar arasından seçin ya da
+  istediğiniz komutu yazın; bir sonraki girişinizde devreye girer.
+- **Her girdiyi düzenleyin.** Ad, açıklama, komut, simge ve
+  `.desktop` dosyasındaki diğer anahtarlar uygulamanın içinden
+  değiştirilebilir. Sistem girdilerinde değişiklik kişisel bir kopyaya
+  yazılır, özgün dosyaya dokunulmaz.
+- **Neye baktığınızı görürsünüz.** Her satır uygulamanın ya da servisin
+  kendi simgesini gösterir; bulunamayanlarda genel bir görsel kullanılır.
 - **Dilinizi konuşur.** İngilizce ve Türkçe, istediğiniz an değiştirilebilir.
   İlk açılışta sistem dilinize uyar.
 - **Sisteme ait görünür.** GTK4 ve libadwaita ile yazıldı; sistem temanızı,
@@ -87,13 +96,13 @@ Liftoff saf Python ile yazılmıştır. Tek bir paket **her mimaride** çalış�
 ### Debian, Ubuntu, Linux Mint, Pop!\_OS
 
 ```bash
-sudo apt install ./liftoff_1.0.3_all.deb
+sudo apt install ./liftoff_1.1.0_all.deb
 ```
 
 ### Fedora, RHEL, openSUSE
 
 ```bash
-sudo dnf install ./liftoff-1.0.3-1.noarch.rpm
+sudo dnf install ./liftoff-1.1.0-1.noarch.rpm
 ```
 
 ### Arch Linux
@@ -106,13 +115,13 @@ cd liftoff/packaging && makepkg -si
 ### Her dağıtım, sistem geneli
 
 ```bash
-tar xf liftoff-1.0.3.tar.gz && cd liftoff-1.0.3 && sudo make install PREFIX=/usr
+tar xf liftoff-1.1.0.tar.gz && cd liftoff-1.1.0 && sudo make install PREFIX=/usr
 ```
 
 ### Her dağıtım, yalnızca kendiniz için — root gerekmez
 
 ```bash
-tar xf liftoff-1.0.3.tar.gz && cd liftoff-1.0.3 && ./install.sh
+tar xf liftoff-1.1.0.tar.gz && cd liftoff-1.1.0 && ./install.sh
 ```
 
 Bu kurulum `~/.local` altına yapılır. `~/.local/bin` dizini `PATH`

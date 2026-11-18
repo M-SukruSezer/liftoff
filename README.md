@@ -56,8 +56,17 @@ without learning three different tools.
 - **Finds things fast.** Search by name, command or description, filter to
   enabled items only, and reveal the background components that are hidden
   by default.
-- **Add your own.** Create a new startup entry from the app, pick any
+- **Flatpak apps stay off.** Their autostart entry is written by the
+  portal, so Liftoff does not stop at the file: it also withdraws the
+  background permission. Otherwise the app has the entry written again the
+  next time it runs.
+- **Add your own.** Pick one of the installed applications or type any
   command, and it appears on your next login.
+- **Edit any entry.** Name, description, command, icon and every other key
+  in the `.desktop` file can be changed from the app. Changes to a system
+  entry are saved as a personal copy; the original file stays untouched.
+- **See what you are looking at.** Every row shows the application's or
+  service's own icon, falling back to a generic one when there is none.
 - **Speaks your language.** English and Turkish, switchable at any time.
   The first run follows your system language.
 - **Looks like it belongs.** Built with GTK4 and libadwaita, so it follows
@@ -85,13 +94,13 @@ Liftoff is pure Python. One package works on **every architecture** —
 ### Debian, Ubuntu, Linux Mint, Pop!\_OS
 
 ```bash
-sudo apt install ./liftoff_1.0.3_all.deb
+sudo apt install ./liftoff_1.1.0_all.deb
 ```
 
 ### Fedora, RHEL, openSUSE
 
 ```bash
-sudo dnf install ./liftoff-1.0.3-1.noarch.rpm
+sudo dnf install ./liftoff-1.1.0-1.noarch.rpm
 ```
 
 ### Arch Linux
@@ -104,13 +113,13 @@ cd liftoff/packaging && makepkg -si
 ### Any distribution, system-wide
 
 ```bash
-tar xf liftoff-1.0.3.tar.gz && cd liftoff-1.0.3 && sudo make install PREFIX=/usr
+tar xf liftoff-1.1.0.tar.gz && cd liftoff-1.1.0 && sudo make install PREFIX=/usr
 ```
 
 ### Any distribution, just for you — no root
 
 ```bash
-tar xf liftoff-1.0.3.tar.gz && cd liftoff-1.0.3 && ./install.sh
+tar xf liftoff-1.1.0.tar.gz && cd liftoff-1.1.0 && ./install.sh
 ```
 
 This installs into `~/.local`. If `~/.local/bin` is not on your `PATH`, the

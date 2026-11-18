@@ -36,6 +36,10 @@ TR: dict[str, str] = {
     "System entry, overridden by your setting":
         "Sistem girdisi, kullanıcı ayarınızla geçersiz kılınmış",
     "System-wide entry (/etc/xdg)": "Sistem geneli girdi (/etc/xdg)",
+    "Managed by the Flatpak background permission — turning it off here "
+    "also withdraws that permission":
+        "Flatpak arka plan izniyle yönetiliyor — buradan kapatmak bu izni "
+        "de geri alır",
     "Session startup component (phase: %s)":
         "Oturum başlatma bileşeni (faz: %s)",
     # --- systemd notları -----------------------------------------------
@@ -160,6 +164,68 @@ TR: dict[str, str] = {
     "turn on your computer, and lets you turn them off.":
         "Bilgisayar açıldığında kendiliğinden başlayan uygulama ve servisleri "
         "gösterir, kapatmanızı sağlar.",
+    "<p>Flatpak applications now stay off once you turn them off.</p>"
+    "<ul>"
+    "<li>Every row shows the application's or service's own icon</li>"
+    "<li>Startup entries can be edited, icon included</li>"
+    "<li>New entries can be picked from the installed applications</li>"
+    "<li>Added a keyboard shortcuts window</li>"
+    "</ul>":
+        "<p>Flatpak uygulamaları artık kapattığınızda kapalı kalıyor.</p>"
+        "<ul>"
+        "<li>Her satır uygulamanın ya da servisin kendi simgesini "
+        "gösteriyor</li>"
+        "<li>Başlangıç girdileri simgesiyle birlikte düzenlenebiliyor</li>"
+        "<li>Yeni girdiler kurulu uygulamalar arasından seçilebiliyor</li>"
+        "<li>Klavye kısayolları penceresi eklendi</li>"
+        "</ul>",
+    # --- düzenleme ve ekleme ------------------------------------------------
+    "Edit…": "Düzenle…",
+    "Edit entry": "Girdiyi düzenle",
+    "Entry": "Girdi",
+    "Description": "Açıklama",
+    "Icon": "Simge",
+    "Change…": "Değiştir…",
+    "Clear": "Temizle",
+    "Not set": "Belirtilmemiş",
+    "Run in a terminal": "Uçbirimde çalıştır",
+    "Other keys": "Diğer anahtarlar",
+    "Everything else in the .desktop file.":
+        ".desktop dosyasındaki diğer her şey.",
+    "Add a key": "Anahtar ekle",
+    "Key name": "Anahtar adı",
+    "For example Terminal, Path or Name[tr].":
+        "Örneğin Terminal, Path ya da Name[tr].",
+    "Remove this key": "Bu anahtarı kaldır",
+    "Save": "Kaydet",
+    "Could not open it: %s": "Açılamadı: %s",
+    "Could not save it: %s": "Kaydedilemedi: %s",
+    "“%s” saved": "“%s” kaydedildi",
+    "This is a system entry": "Bu bir sistem girdisi",
+    "Your changes are saved as a personal copy; the original file stays "
+    "untouched.":
+        "Değişiklikleriniz kişisel bir kopyaya yazılır; özgün dosyaya "
+        "dokunulmaz.",
+    # --- simge seçici --------------------------------------------------------
+    "Choose an icon": "Simge seç",
+    "Search icons": "Simgelerde ara",
+    "No matching icons": "Eşleşen simge yok",
+    "From a file…": "Dosyadan…",
+    "Images": "Görseller",
+    # --- uygulama seçici -----------------------------------------------------
+    "From installed applications…": "Kurulu uygulamalardan…",
+    "Enter a command…": "Komut gir…",
+    "Choose an application": "Uygulama seç",
+    "Search applications": "Uygulamalarda ara",
+    "No matching applications": "Eşleşen uygulama yok",
+    # --- kısayollar ----------------------------------------------------------
+    "Keyboard Shortcuts": "Klavye Kısayolları",
+    "General": "Genel",
+    "Add a startup entry": "Başlangıç girdisi ekle",
+    "Search": "Ara",
+    "Close the window": "Pencereyi kapat",
+    "Built with": "Kullanılan teknolojiler",
+    "translator-credits": "Muhammed Şükrü SEZER",
 }
 
 CATALOG: dict[str, dict[str, str]] = {"tr": TR}

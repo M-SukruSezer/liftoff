@@ -4,9 +4,10 @@
 #   flatpak-builder --user --install --force-clean build io.github.m_sukrusezer.Liftoff.yaml
 #   flatpak run io.github.m_sukrusezer.Liftoff
 #
-# Kaynak, deponun v1.0.0 etiketidir; Flathub yerel dizinden derlemeyi
+# Kaynak, deponun sürüm etiketidir; Flathub yerel dizinden derlemeyi
 # kabul etmez. Yeni sürüm yayınlarken "tag" ve "commit" değerlerini
-# birlikte güncelleyin.
+# birlikte güncelleyin:
+#   git rev-parse v1.1.0^{commit}
 
 id: io.github.m_sukrusezer.Liftoff
 runtime: org.gnome.Platform
@@ -52,9 +53,9 @@ modules:
     sources:
       - type: git
         url: https://github.com/M-SukruSezer/liftoff.git
-        tag: v1.0.1
+        tag: v1.1.0
         # Etiketin işaret ettiği commit (imzalı etiket nesnesinin değil).
-        commit: d61ff4e1c89b7f39082550951885b35a6a5878d3
+        commit: SURUM-ETIKETLENDIKTEN-SONRA-DOLDURULACAK
       # Yerel denemek için yukarıdaki bloğu yorumlayıp bunu açın:
       # - type: dir
       #   path: .

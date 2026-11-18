@@ -1,5 +1,5 @@
 Name:           liftoff
-Version:        1.0.3
+Version:        1.1.0
 Release:        1%{?dist}
 Summary:        See and disable the applications and services that start automatically
 
@@ -55,6 +55,10 @@ appstream-util validate-relax --nonet \
 %{_datadir}/icons/hicolor/symbolic/apps/io.github.m_sukrusezer.Liftoff-symbolic.svg
 
 %changelog
+* Wed Nov 18 2026 Muhammed Şükrü SEZER <61243521+M-SukruSezer@users.noreply.github.com> - 1.1.0-1
+- Keep Flatpak apps off by also withdrawing their background permission
+- Show the icon of each application and service
+- Edit startup entries and add them from the installed applications
 * Wed Nov 18 2026 Muhammed Şükrü SEZER <61243521+M-SukruSezer@users.noreply.github.com> - 1.0.3-1
 - Rewrite the documentation and publish installable packages
 * Wed Nov 18 2026 Muhammed Şükrü SEZER <61243521+M-SukruSezer@users.noreply.github.com> - 1.0.2-1

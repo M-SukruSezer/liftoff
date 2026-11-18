@@ -18,7 +18,7 @@ import os
 import shutil
 from pathlib import Path
 
-from . import host
+from . import host, portal
 from .desktop import DesktopFile, is_true
 from .i18n import gettext as _
 from .models import Item, Note, Scope, Source
@@ -115,7 +115,17 @@ def _desktop_visibility_note(df: DesktopFile) -> Note | None:
     return None
 
 
-def _build_item(key: str, user_path: Path | None, system_path: Path | None) -> Item | None:
+def _portal_app_id(df: DesktopFile) -> str:
+    """Girdi xdg-desktop-portal tarafından mı yazılmış? Uygulama kimliği."""
+    for key in portal.APP_ID_KEYS:
+        value = (df.get(key) or "").strip()
+        if value:
+            return value
+    return ""
+
+
+def _build_item(key: str, user_path: Path | None, system_path: Path | None,
+                background: dict[str, bool] | None = None) -> Item | None:
     effective = user_path or system_path
     if effective is None:
         return None
@@ -139,7 +149,17 @@ def _build_item(key: str, user_path: Path | None, system_path: Path | None) -> I
     else:
         scope = Scope.USER
 
+    portal_app = _portal_app_id(df)
+    enabled = _entry_enabled(df)
+    if portal_app and background is not None and not background.get(portal_app, True):
+        # Portal izni kapalıysa dosya ne derse desin girdi çalışmaz.
+        enabled = False
+
     notes: list[Note] = []
+    if portal_app:
+        notes.append(Note(
+            "Managed by the Flatpak background permission — turning it off "
+            "here also withdraws that permission"))
     vis = _desktop_visibility_note(df)
     if vis:
         notes.append(vis)
@@ -157,7 +177,7 @@ def _build_item(key: str, user_path: Path | None, system_path: Path | None) -> I
         key=key,
         source=Source.AUTOSTART,
         name=name,
-        enabled=_entry_enabled(df),
+        enabled=enabled,
         description=comment,
         command=command,
         icon=icon,
@@ -166,6 +186,7 @@ def _build_item(key: str, user_path: Path | None, system_path: Path | None) -> I
         needs_root=False,
         hidden_entry=is_true(df.get("NoDisplay")),
         notes=notes,
+        portal_app=portal_app,
         user_path=str(user_path) if user_path else None,
         system_path=str(system_path) if system_path else None,
     )
@@ -178,9 +199,11 @@ def list_items() -> list[Item]:
         for fname, path in _desktop_files(d).items():
             system_files.setdefault(fname, path)
 
+    background = portal.background_permissions()
     items: list[Item] = []
     for key in sorted(set(user_files) | set(system_files)):
-        item = _build_item(key, user_files.get(key), system_files.get(key))
+        item = _build_item(key, user_files.get(key), system_files.get(key),
+                           background)
         if item:
             items.append(item)
     return sorted(items, key=lambda i: i.sort_key)
@@ -195,6 +218,9 @@ def set_enabled(item: Item, enabled: bool) -> None:
 
 
 def _enable(item: Item) -> None:
+    if item.portal_app:
+        # Dosyayı geri açmak yetmez; portal izni de geri verilmeli.
+        portal.set_background(item.portal_app, True)
     if not item.user_path:
         return  # yalnızca sistem girdisi: zaten etkin
     df = DesktopFile.load(item.user_path)
@@ -211,6 +237,10 @@ def _enable(item: Item) -> None:
 
 
 def _disable(item: Item) -> None:
+    if item.portal_app:
+        # İzin açık kaldığı sürece uygulama bir dahaki çalışmasında
+        # autostart dosyasını portala yeniden yazdırır.
+        portal.set_background(item.portal_app, False)
     if item.user_path:
         df = DesktopFile.load(item.user_path)
         df.set("Hidden", "true")
@@ -229,6 +259,72 @@ def _disable(item: Item) -> None:
     item.scope = Scope.BOTH
 
 
+# --------------------------------------------------------------- düzenleme
+
+#  Kullanıcıya ayrı alanlarda gösterdiğimiz anahtarlar; geri kalanı
+#  "gelişmiş" bölümünde ham olarak listelenir.
+BASIC_KEYS = ("Name", "Comment", "Exec", "Icon", "Terminal")
+
+# Girdinin kimliğini belirleyen, elle oynanmaması gereken anahtarlar.
+PROTECTED_KEYS = ("Type", OVERRIDE_KEY) + LEGACY_OVERRIDE_KEYS
+
+
+def read_entry(item: Item) -> DesktopFile:
+    """Girdinin o anki içeriği (kullanıcı kopyası varsa o)."""
+    path = item.user_path or item.system_path
+    if not path:
+        raise ValueError(_("No path to save to"))
+    return DesktopFile.load(path)
+
+
+def is_editable(item: Item) -> bool:
+    """Autostart girdileri düzenlenebilir; sistem girdisi kopyalanır."""
+    return item.source is Source.AUTOSTART and bool(
+        item.user_path or item.system_path)
+
+
+def save_entry(item: Item, values: dict[str, str],
+               removed: tuple[str, ...] = ()) -> Path:
+    """Girdiyi günceller; gerekiyorsa sistem dosyasını kullanıcıya kopyalar.
+
+    ``values`` ham anahtar -> değer eşlemesidir (``Name[tr]`` da olabilir);
+    boş değer anahtarı siler. Sistem girdisini düzenlemek kullanıcı kopyası
+    oluşturur, böylece özgün dosyaya dokunulmaz.
+    """
+    source_path = item.user_path or item.system_path
+    if not source_path:
+        raise ValueError(_("No path to save to"))
+
+    name = values.get("Name")
+    if name is not None and not name.strip():
+        raise ValueError(_("Name cannot be empty"))
+    command = values.get("Exec")
+    if command is not None and not command.strip():
+        raise ValueError(_("Command cannot be empty"))
+
+    df = DesktopFile.load(source_path)
+    for key in removed:
+        df.unset_raw(key)
+    for key, value in values.items():
+        if value.strip():
+            df.set_raw(key, value.strip())
+        else:
+            df.unset_raw(key)
+
+    # Düzenlenen dosya artık yalnızca "kapatmak için" açılmış bir gölge
+    # değildir: işareti kaldırıyoruz ki girdi açıldığında silinmesin.
+    df.unset(OVERRIDE_KEY)
+    for key in LEGACY_OVERRIDE_KEYS:
+        df.unset(key)
+
+    target = Path(item.user_path) if item.user_path else user_dir() / item.key
+    df.save(target)
+    item.user_path = str(target)
+    if item.system_path:
+        item.scope = Scope.BOTH
+    return target
+
+
 def can_remove(item: Item) -> bool:
     return bool(item.user_path)
 
@@ -240,12 +336,20 @@ def remove(item: Item) -> str:
     """
     if not item.user_path:
         raise ValueError(_("A system entry cannot be deleted"))
+    if item.portal_app:
+        # Dosyayı silmek yetmez: izin açık kalırsa portal onu geri yazar.
+        portal.set_background(item.portal_app, False)
     Path(item.user_path).unlink(missing_ok=True)
     return "restored" if item.system_path else "deleted"
 
 
-def add_entry(name: str, command: str, comment: str = "") -> Path:
-    """Yeni bir kullanıcı autostart girdisi oluşturur."""
+def add_entry(name: str, command: str, comment: str = "", icon: str = "",
+              terminal: bool = False, app_id: str = "") -> Path:
+    """Yeni bir kullanıcı autostart girdisi oluşturur.
+
+    ``app_id`` verilirse dosya kurulu uygulamanın kimliğiyle adlandırılır;
+    aksi hâlde görünen addan bir dosya adı türetilir.
+    """
     name = name.strip()
     command = command.strip()
     if not name:
@@ -253,8 +357,9 @@ def add_entry(name: str, command: str, comment: str = "") -> Path:
     if not command:
         raise ValueError(_("Command cannot be empty"))
 
-    slug = "".join(ch if ch.isalnum() or ch in "-_" else "-" for ch in name.casefold())
-    slug = "-".join(part for part in slug.split("-") if part) or "girdi"
+    base = app_id.strip() or name.casefold()
+    slug = "".join(ch if ch.isalnum() or ch in "-_." else "-" for ch in base)
+    slug = "-".join(part for part in slug.split("-") if part) or "entry"
     target = user_dir() / f"{slug}.desktop"
     counter = 2
     while target.exists():
@@ -267,7 +372,9 @@ def add_entry(name: str, command: str, comment: str = "") -> Path:
     if comment.strip():
         df.set("Comment", comment.strip())
     df.set("Exec", command)
-    df.set("Terminal", "false")
+    if icon.strip():
+        df.set("Icon", icon.strip())
+    df.set("Terminal", "true" if terminal else "false")
     df.set(GNOME_KEY, "true")
     df.save(target)
     return target

@@ -65,6 +65,7 @@ class Item:
     enabled: bool
     description: str = ""
     command: str = ""
+    exec_path: str = ""   # simge tahmini için çalıştırılan program
     icon: str = ""
     scope: Scope = Scope.USER
     toggleable: bool = True
@@ -75,6 +76,7 @@ class Item:
     user_path: str | None = None
     system_path: str | None = None
     unit_state: str = ""
+    portal_app: str = ""  # Flatpak portalının yönettiği autostart girdisi
     critical: bool = False
 
     @property

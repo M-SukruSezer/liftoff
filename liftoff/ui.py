@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import platform
+import re
 import threading
 import traceback
 from pathlib import Path
@@ -11,12 +13,49 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, Gdk, Gio, GLib, GObject, Gtk  # noqa: E402
+gi.require_version("Pango", "1.0")
 
-from . import APP_ID, APP_NAME, __version__, i18n, settings  # noqa: E402
-from . import systemd, xdg_autostart  # noqa: E402
+from gi.repository import (  # noqa: E402
+    Adw, Gdk, Gio, GLib, GObject, Gtk, Pango,
+)
+
+from . import (  # noqa: E402
+    APP_DEVELOPER,
+    APP_DEVELOPER_HANDLE,
+    APP_ID,
+    APP_NAME,
+    COPYRIGHT_YEAR,
+    ISSUE_URL,
+    PROJECT_URL,
+    __version__,
+    i18n,
+    settings,
+)
+from . import apps, icons, systemd, xdg_autostart  # noqa: E402
 from .i18n import gettext as _  # noqa: E402
 from .models import Item, Source  # noqa: E402
+
+
+# .desktop anahtar adı: Ad, Ad[tr], X-Ozel-Anahtar...
+KEY_NAME_RE = re.compile(r"^[A-Za-z0-9-]+(\[[A-Za-z0-9_@.-]+\])?$")
+
+
+def apply_icon(image: Gtk.Image, candidates, fallback: str) -> None:
+    """İlk bulunabilen simgeyi görsele yerleştirir, yoksa genel görseli."""
+    display = Gdk.Display.get_default()
+    theme = Gtk.IconTheme.get_for_display(display) if display else None
+    for name in candidates:
+        if not name:
+            continue
+        if name.startswith("/"):
+            if Path(name).exists():
+                image.set_from_file(name)
+                return
+            continue
+        if theme is not None and theme.has_icon(name):
+            image.set_from_icon_name(name)
+            return
+    image.set_from_icon_name(fallback)
 
 
 def run_in_thread(work, on_done):
@@ -90,18 +129,9 @@ class ItemRow(Adw.ActionRow):
         return " · ".join(parts)
 
     def _build_icon(self) -> Gtk.Widget:
-        name = self.item.icon
-        if self.item.source is not Source.AUTOSTART:
-            name = "system-run-symbolic"
+        """Uygulamanın/servisin kendi logosu varsa onu, yoksa genel görseli."""
         image = Gtk.Image(pixel_size=32, valign=Gtk.Align.CENTER)
-        display = Gdk.Display.get_default()
-        theme = Gtk.IconTheme.get_for_display(display) if display else None
-        if name and name.startswith("/") and Path(name).exists():
-            image.set_from_file(name)
-        elif name and theme is not None and theme.has_icon(name):
-            image.set_from_icon_name(name)
-        else:
-            image.set_from_icon_name("application-x-executable-symbolic")
+        apply_icon(image, icons.candidates(self.item), icons.fallback(self.item))
         if self.item.hidden_entry:
             image.add_css_class("dim-label")
         return image
@@ -121,6 +151,8 @@ class ItemRow(Adw.ActionRow):
 
     def _build_menu(self) -> Gtk.Widget:
         menu = Gio.Menu()
+        if xdg_autostart.is_editable(self.item):
+            menu.append(_("Edit…"), f"row.edit::{self.item.key}")
         menu.append(_("Details"), f"row.details::{self.item.key}")
         if self.item.source is Source.AUTOSTART and xdg_autostart.can_remove(self.item):
             label = _("Restore default") if self.item.system_path else _("Delete entry")
@@ -215,6 +247,10 @@ class ItemsPage(Gtk.Box):
         details.connect("activate", self._on_details)
         group.add_action(details)
 
+        edit = Gio.SimpleAction.new("edit", GLib.VariantType.new("s"))
+        edit.connect("activate", self._on_edit)
+        group.add_action(edit)
+
         remove = Gio.SimpleAction.new("remove", GLib.VariantType.new("s"))
         remove.connect("activate", self._on_remove)
         group.add_action(remove)
@@ -224,6 +260,9 @@ class ItemsPage(Gtk.Box):
     # ------------------------------------------------------------ yükleme
 
     def _loader(self):
+        # Simge dizinini de arka planda hazırla; satırlar çizilirken
+        # ana döngü dosya taramasıyla uğraşmasın.
+        icons.index()
         if self.source is Source.AUTOSTART:
             return xdg_autostart.list_items()
         return systemd.list_items(user=self.source is Source.USER_UNIT)
@@ -402,6 +441,11 @@ class ItemsPage(Gtk.Box):
         if item:
             DetailsDialog(item).present(self.window)
 
+    def _on_edit(self, _action, param) -> None:
+        item = self._find_item(param.get_string())
+        if item is not None and xdg_autostart.is_editable(item):
+            EditEntryDialog(self.window, item).present(self.window)
+
     def _on_remove(self, _action, param) -> None:
         item = self._find_item(param.get_string())
         if item is None:
@@ -567,6 +611,445 @@ class AddEntryDialog(Adw.Dialog):
         self.window.pages[Source.AUTOSTART].reload(show_spinner=False)
 
 
+
+class IconPickerDialog(Adw.Dialog):
+    """Simge temasındaki görsellerden birini seçmek için arama penceresi."""
+
+    MAX_RESULTS = 240
+
+    def __init__(self, current: str, on_pick):
+        super().__init__(title=_("Choose an icon"),
+                         content_width=560, content_height=560)
+        self.on_pick = on_pick
+        self._names: list[str] = []
+
+        display = Gdk.Display.get_default()
+        self.theme = Gtk.IconTheme.get_for_display(display) if display else None
+
+        self.search = Gtk.SearchEntry(hexpand=True)
+        self.search.set_placeholder_text(_("Search icons"))
+        self.search.set_text(current if current and not current.startswith("/") else "")
+        self.search.connect("search-changed", lambda *_a: self._refresh())
+
+        self.flow = Gtk.FlowBox(
+            selection_mode=Gtk.SelectionMode.NONE,
+            homogeneous=True,
+            min_children_per_line=4,
+            max_children_per_line=8,
+            row_spacing=6,
+            column_spacing=6,
+            margin_start=12, margin_end=12, margin_top=6, margin_bottom=12,
+        )
+
+        self.status = Adw.StatusPage(
+            icon_name="system-search-symbolic",
+            title=_("No matching icons"),
+        )
+        self.stack = Gtk.Stack(vexpand=True)
+        scroller = Gtk.ScrolledWindow(child=self.flow, vexpand=True)
+        self.stack.add_named(scroller, "list")
+        self.stack.add_named(self.status, "empty")
+
+        from_file = Gtk.Button(label=_("From a file…"))
+        from_file.connect("clicked", self._on_from_file)
+
+        header = Adw.HeaderBar()
+        header.pack_end(from_file)
+
+        search_bar = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                             margin_start=12, margin_end=12,
+                             margin_top=6, margin_bottom=6)
+        search_bar.append(self.search)
+
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        box.append(search_bar)
+        box.append(self.stack)
+
+        view = Adw.ToolbarView(content=box)
+        view.add_top_bar(header)
+        self.set_child(view)
+
+        self._refresh()
+
+    def _all_names(self) -> list[str]:
+        if self._names:
+            return self._names
+        if self.theme is None:
+            return []
+        self._names = sorted(self.theme.get_icon_names())
+        return self._names
+
+    def _refresh(self) -> None:
+        query = self.search.get_text().strip().casefold()
+        self.flow.remove_all()
+
+        names = self._all_names()
+        if query:
+            exact = [n for n in names if n.casefold() == query]
+            starts = [n for n in names if n.casefold().startswith(query)
+                      and n.casefold() != query]
+            contains = [n for n in names if query in n.casefold()
+                        and not n.casefold().startswith(query)]
+            names = exact + starts + contains
+        shown = names[: self.MAX_RESULTS]
+
+        if not shown:
+            self.stack.set_visible_child_name("empty")
+            return
+        self.stack.set_visible_child_name("list")
+        for name in shown:
+            self.flow.append(self._tile(name))
+
+    def _tile(self, name: str) -> Gtk.Widget:
+        button = Gtk.Button(has_frame=False, tooltip_text=name)
+        content = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4,
+                          margin_top=6, margin_bottom=6)
+        content.append(Gtk.Image(icon_name=name, pixel_size=40))
+        label = Gtk.Label(label=name, ellipsize=Pango.EllipsizeMode.MIDDLE,
+                          max_width_chars=12)
+        label.add_css_class("caption")
+        content.append(label)
+        button.set_child(content)
+        button.connect("clicked", lambda *_a: self._pick(name))
+        return button
+
+    def _pick(self, value: str) -> None:
+        self.on_pick(value)
+        self.close()
+
+    def _on_from_file(self, _button) -> None:
+        chooser = Gtk.FileDialog(title=_("Choose an icon"))
+        filters = Gio.ListStore.new(Gtk.FileFilter)
+        image_filter = Gtk.FileFilter()
+        image_filter.set_name(_("Images"))
+        for pattern in ("*.png", "*.svg", "*.xpm", "*.jpg", "*.jpeg"):
+            image_filter.add_pattern(pattern)
+        filters.append(image_filter)
+        chooser.set_filters(filters)
+
+        def done(dialog, result):
+            try:
+                gfile = dialog.open_finish(result)
+            except GLib.Error:
+                return
+            if gfile is not None and gfile.get_path():
+                self._pick(gfile.get_path())
+
+        chooser.open(self.get_root(), None, done)
+
+
+class KeyNameDialog(Adw.Dialog):
+    """Gelişmiş bölümde yeni bir .desktop anahtarı eklemek için küçük form."""
+
+    def __init__(self, on_add):
+        super().__init__(title=_("Add a key"), content_width=400)
+        self.on_add = on_add
+
+        self.key_row = Adw.EntryRow(title=_("Key name"))
+        group = Adw.PreferencesGroup(
+            description=_("For example Terminal, Path or Name[tr].")
+        )
+        group.add(self.key_row)
+        page = Adw.PreferencesPage()
+        page.add(group)
+
+        cancel = Gtk.Button(label=_("Cancel"))
+        cancel.connect("clicked", lambda *_a: self.close())
+        add = Gtk.Button(label=_("Add"))
+        add.add_css_class("suggested-action")
+        add.connect("clicked", self._on_add)
+
+        header = Adw.HeaderBar(show_end_title_buttons=False,
+                               show_start_title_buttons=False)
+        header.pack_start(cancel)
+        header.pack_end(add)
+
+        view = Adw.ToolbarView(content=page)
+        view.add_top_bar(header)
+        self.set_child(view)
+        self.set_default_widget(add)
+        self.key_row.connect("entry-activated", self._on_add)
+
+    def _on_add(self, *_args) -> None:
+        name = self.key_row.get_text().strip()
+        self.key_row.remove_css_class("error")
+        if not name or not KEY_NAME_RE.match(name):
+            self.key_row.add_css_class("error")
+            return
+        self.close()
+        self.on_add(name)
+
+
+class EditEntryDialog(Adw.Dialog):
+    """Bir autostart girdisinin .desktop içeriğini düzenler."""
+
+    def __init__(self, window: "MainWindow", item: Item):
+        super().__init__(title=_("Edit entry"),
+                         content_width=560, content_height=640)
+        self.window = window
+        self.item = item
+        self.removed: list[str] = []
+        self.extra_rows: dict[str, Adw.EntryRow] = {}
+
+        try:
+            self.df = xdg_autostart.read_entry(item)
+        except (OSError, ValueError) as exc:
+            self.df = None
+            self.window.toast(_("Could not open it: %s") % exc, timeout=6)
+
+        entries = dict(self.df.entries()) if self.df else {}
+
+        self.name_row = Adw.EntryRow(title=_("Display name"))
+        self.name_row.set_text(entries.get("Name", item.name))
+        self.comment_row = Adw.EntryRow(title=_("Description"))
+        self.comment_row.set_text(entries.get("Comment", ""))
+        self.cmd_row = Adw.EntryRow(title=_("Command"))
+        self.cmd_row.set_text(entries.get("Exec", ""))
+
+        self.icon_value = entries.get("Icon", "")
+        self.icon_row = Adw.ActionRow(title=_("Icon"))
+        self.icon_preview = Gtk.Image(pixel_size=32, valign=Gtk.Align.CENTER)
+        self.icon_row.add_prefix(self.icon_preview)
+        pick = Gtk.Button(label=_("Change…"), valign=Gtk.Align.CENTER)
+        pick.connect("clicked", self._on_pick_icon)
+        self.icon_row.add_suffix(pick)
+        clear = Gtk.Button(icon_name="edit-clear-symbolic",
+                           valign=Gtk.Align.CENTER, tooltip_text=_("Clear"))
+        clear.add_css_class("flat")
+        clear.connect("clicked", lambda *_a: self._set_icon(""))
+        self.icon_row.add_suffix(clear)
+        self._set_icon(self.icon_value)
+
+        self.terminal_row = Adw.SwitchRow(
+            title=_("Run in a terminal"),
+            active=entries.get("Terminal", "").strip().casefold()
+            in ("true", "1", "yes", "on"),
+        )
+
+        basic = Adw.PreferencesGroup(title=_("Entry"))
+        for row in (self.name_row, self.comment_row, self.cmd_row,
+                    self.icon_row, self.terminal_row):
+            basic.add(row)
+
+        self.advanced = Adw.PreferencesGroup(
+            title=_("Other keys"),
+            description=_("Everything else in the .desktop file."),
+        )
+        add_button = Gtk.Button(icon_name="list-add-symbolic",
+                                valign=Gtk.Align.CENTER,
+                                tooltip_text=_("Add a key"))
+        add_button.add_css_class("flat")
+        add_button.connect("clicked", self._on_add_key)
+        self.advanced.set_header_suffix(add_button)
+
+        handled = set(xdg_autostart.BASIC_KEYS) | set(xdg_autostart.PROTECTED_KEYS)
+        for key, value in (self.df.entries() if self.df else []):
+            if key in handled:
+                continue
+            self._add_extra_row(key, value)
+
+        page = Adw.PreferencesPage()
+        page.add(basic)
+        page.add(self.advanced)
+
+        if item.system_path and not item.user_path:
+            page.add(self._copy_hint())
+
+        cancel = Gtk.Button(label=_("Cancel"))
+        cancel.connect("clicked", lambda *_a: self.close())
+        save = Gtk.Button(label=_("Save"))
+        save.add_css_class("suggested-action")
+        save.connect("clicked", self._on_save)
+
+        header = Adw.HeaderBar(show_end_title_buttons=False,
+                               show_start_title_buttons=False)
+        header.pack_start(cancel)
+        header.pack_end(save)
+
+        view = Adw.ToolbarView(content=page)
+        view.add_top_bar(header)
+        self.set_child(view)
+        self.set_default_widget(save)
+
+    # ----------------------------------------------------------- yardımcılar
+
+    def _copy_hint(self) -> Adw.PreferencesGroup:
+        group = Adw.PreferencesGroup()
+        row = Adw.ActionRow(
+            title=_("This is a system entry"),
+            subtitle=_("Your changes are saved as a personal copy; the "
+                       "original file stays untouched."),
+            subtitle_lines=0,
+        )
+        row.add_prefix(Gtk.Image(icon_name="dialog-information-symbolic"))
+        group.add(row)
+        return group
+
+    def _set_icon(self, value: str) -> None:
+        self.icon_value = value
+        candidates = [value] if value else icons.candidates(self.item)
+        apply_icon(self.icon_preview, candidates, icons.fallback(self.item))
+        self.icon_row.set_subtitle(value or _("Not set"))
+
+    def _on_pick_icon(self, _button) -> None:
+        IconPickerDialog(self.icon_value, self._set_icon).present(self)
+
+    def _add_extra_row(self, key: str, value: str) -> None:
+        row = Adw.EntryRow(title=key)
+        row.set_text(value)
+        delete = Gtk.Button(icon_name="user-trash-symbolic",
+                            valign=Gtk.Align.CENTER,
+                            tooltip_text=_("Remove this key"))
+        delete.add_css_class("flat")
+        delete.connect("clicked", lambda *_a, k=key: self._remove_extra(k))
+        row.add_suffix(delete)
+        self.advanced.add(row)
+        self.extra_rows[key] = row
+
+    def _remove_extra(self, key: str) -> None:
+        row = self.extra_rows.pop(key, None)
+        if row is not None:
+            self.advanced.remove(row)
+            self.removed.append(key)
+
+    def _on_add_key(self, _button) -> None:
+        def add(name: str) -> None:
+            if name in self.extra_rows:
+                self.extra_rows[name].grab_focus()
+                return
+            if name in self.removed:
+                self.removed.remove(name)
+            self._add_extra_row(name, "")
+            self.extra_rows[name].grab_focus()
+
+        KeyNameDialog(add).present(self)
+
+    # ---------------------------------------------------------------- kayıt
+
+    def _on_save(self, *_args) -> None:
+        name = self.name_row.get_text().strip()
+        command = self.cmd_row.get_text().strip()
+        self.name_row.remove_css_class("error")
+        self.cmd_row.remove_css_class("error")
+        if not name:
+            self.name_row.add_css_class("error")
+            return
+        if not command:
+            self.cmd_row.add_css_class("error")
+            return
+
+        values = {
+            "Name": name,
+            "Comment": self.comment_row.get_text().strip(),
+            "Exec": command,
+            "Icon": self.icon_value.strip(),
+            "Terminal": "true" if self.terminal_row.get_active() else "false",
+        }
+        for key, row in self.extra_rows.items():
+            values[key] = row.get_text().strip()
+
+        try:
+            xdg_autostart.save_entry(self.item, values, tuple(self.removed))
+        except (OSError, ValueError) as exc:
+            self.window.toast(_("Could not save it: %s") % exc, timeout=6)
+            return
+
+        self.close()
+        self.window.toast(_("“%s” saved") % name)
+        self.window.pages[Source.AUTOSTART].reload(show_spinner=False)
+
+
+class AppPickerDialog(Adw.Dialog):
+    """Kurulu uygulamalardan birini başlangıca ekler."""
+
+    def __init__(self, window: "MainWindow"):
+        super().__init__(title=_("Choose an application"),
+                         content_width=520, content_height=620)
+        self.window = window
+        self.apps: list[apps.App] = []
+
+        self.search = Gtk.SearchEntry(hexpand=True)
+        self.search.set_placeholder_text(_("Search applications"))
+        self.search.connect("search-changed", lambda *_a: self._rebuild())
+
+        self.list_box = Gtk.ListBox(selection_mode=Gtk.SelectionMode.NONE,
+                                    margin_start=12, margin_end=12,
+                                    margin_top=6, margin_bottom=12)
+        self.list_box.add_css_class("boxed-list")
+
+        self.status = Adw.StatusPage(icon_name="system-search-symbolic",
+                                     title=_("No matching applications"))
+        spinner = Adw.StatusPage(title=_("Loading…"))
+        spinner.set_child(Adw.Spinner())
+
+        self.stack = Gtk.Stack(vexpand=True)
+        self.stack.add_named(Gtk.ScrolledWindow(child=self.list_box,
+                                                vexpand=True), "list")
+        self.stack.add_named(self.status, "empty")
+        self.stack.add_named(spinner, "loading")
+        self.stack.set_visible_child_name("loading")
+
+        search_box = Gtk.Box(margin_start=12, margin_end=12,
+                             margin_top=6, margin_bottom=6)
+        search_box.append(self.search)
+
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        box.append(search_box)
+        box.append(self.stack)
+
+        view = Adw.ToolbarView(content=box)
+        view.add_top_bar(Adw.HeaderBar())
+        self.set_child(view)
+
+        def done(result, error):
+            self.apps = result or []
+            self._rebuild()
+            return False
+
+        run_in_thread(apps.installed, done)
+
+    def _rebuild(self) -> None:
+        query = self.search.get_text().strip().casefold()
+        self.list_box.remove_all()
+        shown = [a for a in self.apps if not query or query in a.search_blob]
+        if not shown:
+            self.stack.set_visible_child_name("empty")
+            return
+        self.stack.set_visible_child_name("list")
+        for app in shown:
+            self.list_box.append(self._row(app))
+
+    def _row(self, app: "apps.App") -> Gtk.Widget:
+        row = Adw.ActionRow(title=GLib.markup_escape_text(app.name),
+                            activatable=True)
+        if app.comment:
+            row.set_subtitle(GLib.markup_escape_text(app.comment))
+        image = Gtk.Image(pixel_size=32, valign=Gtk.Align.CENTER)
+        apply_icon(image, [app.icon, app.app_id, Path(app.command.split()[0]).name
+                           if app.command else ""],
+                   "application-x-executable-symbolic")
+        row.add_prefix(image)
+        row.connect("activated", lambda *_a, a=app: self._choose(a))
+        return row
+
+    def _choose(self, app: "apps.App") -> None:
+        try:
+            xdg_autostart.add_entry(
+                name=app.name,
+                command=app.command,
+                comment=app.comment,
+                icon=app.icon,
+                terminal=app.terminal,
+                app_id=app.app_id,
+            )
+        except (OSError, ValueError) as exc:
+            self.window.toast(_("Could not add it: %s") % exc, timeout=6)
+            return
+        self.close()
+        self.window.toast(_("“%s” added") % app.name)
+        self.window.pages[Source.AUTOSTART].reload(show_spinner=False)
+
+
 class MainWindow(Adw.ApplicationWindow):
     def __init__(self, app: Adw.Application):
         super().__init__(application=app, title=APP_NAME)
@@ -595,9 +1078,9 @@ class MainWindow(Adw.ApplicationWindow):
         self.search_bar.set_key_capture_widget(self)
         self.search_bar.connect_entry(self.search_entry)
 
-        self.add_button = Gtk.Button(icon_name="list-add-symbolic")
+        self.add_button = Gtk.MenuButton(icon_name="list-add-symbolic",
+                                         menu_model=self._build_add_menu())
         self.add_button.set_tooltip_text(_("Add a new startup entry"))
-        self.add_button.connect("clicked", lambda *_a: AddEntryDialog(self).present(self))
 
         self.search_toggle = Gtk.ToggleButton(icon_name="system-search-symbolic")
         self.search_toggle.set_tooltip_text(_("Search (Ctrl+F)"))
@@ -654,6 +1137,12 @@ class MainWindow(Adw.ApplicationWindow):
 
     # ------------------------------------------------------------- menü
 
+    def _build_add_menu(self) -> Gio.Menu:
+        menu = Gio.Menu()
+        menu.append(_("From installed applications…"), "win.add-app")
+        menu.append(_("Enter a command…"), "win.add-custom")
+        return menu
+
     def _build_menu(self) -> Gio.Menu:
         menu = Gio.Menu()
 
@@ -669,6 +1158,7 @@ class MainWindow(Adw.ApplicationWindow):
 
         other = Gio.Menu()
         other.append(_("Refresh"), "win.refresh")
+        other.append(_("Keyboard Shortcuts"), "win.shortcuts")
         other.append(_("About"), "win.about")
         menu.append_section(None, other)
         return menu
@@ -704,6 +1194,21 @@ class MainWindow(Adw.ApplicationWindow):
         about.connect("activate", lambda *_a: self._show_about())
         self.add_action(about)
 
+        add_app = Gio.SimpleAction.new("add-app", None)
+        add_app.connect("activate", lambda *_a: AppPickerDialog(self).present(self))
+        self.add_action(add_app)
+
+        add_custom = Gio.SimpleAction.new("add-custom", None)
+        add_custom.connect("activate",
+                           lambda *_a: AddEntryDialog(self).present(self))
+        self.add_action(add_custom)
+
+        shortcuts = Gio.SimpleAction.new("shortcuts", None)
+        shortcuts.connect("activate", lambda *_a: self._show_shortcuts())
+        self.add_action(shortcuts)
+
+        app.set_accels_for_action("win.add-app", ["<Primary>n"])
+        app.set_accels_for_action("win.shortcuts", ["<Primary>question"])
         app.set_accels_for_action("win.refresh", ["<Primary>r"])
         app.set_accels_for_action("window.close", ["<Primary>w", "<Primary>q"])
 
@@ -738,6 +1243,7 @@ class MainWindow(Adw.ApplicationWindow):
         about = Adw.AboutDialog(
             application_name=APP_NAME,
             application_icon=APP_ID,
+            developer_name=APP_DEVELOPER,
             version=__version__,
             comments=(
                 _("Shows the applications and services that start by "
@@ -749,9 +1255,85 @@ class MainWindow(Adw.ApplicationWindow):
                 + "• %s: systemctl --user\n" % Source.USER_UNIT.title
                 + "• %s: systemctl (pkexec)" % Source.SYSTEM_UNIT.title
             ),
+            website=PROJECT_URL,
+            issue_url=ISSUE_URL,
+            copyright="© %s %s" % (COPYRIGHT_YEAR, APP_DEVELOPER),
             license_type=Gtk.License.MIT_X11,
+            release_notes_version=__version__,
+            release_notes=_(
+                "<p>Flatpak applications now stay off once you turn them "
+                "off.</p>"
+                "<ul>"
+                "<li>Every row shows the application's or service's own "
+                "icon</li>"
+                "<li>Startup entries can be edited, icon included</li>"
+                "<li>New entries can be picked from the installed "
+                "applications</li>"
+                "<li>Added a keyboard shortcuts window</li>"
+                "</ul>"
+            ),
+            debug_info=self._debug_info(),
+            debug_info_filename="liftoff-debug.txt",
+        )
+        about.set_developers([
+            "%s https://github.com/%s" % (APP_DEVELOPER, APP_DEVELOPER_HANDLE)
+        ])
+        about.set_designers([APP_DEVELOPER])
+        credits_line = _("translator-credits")
+        if credits_line != "translator-credits":
+            about.set_translator_credits(credits_line)
+        about.add_acknowledgement_section(
+            _("Built with"),
+            [
+                "GTK https://www.gtk.org",
+                "libadwaita https://gnome.pages.gitlab.gnome.org/libadwaita/",
+                "PyGObject https://pygobject.gnome.org",
+            ],
         )
         about.present(self)
+
+    def _show_shortcuts(self) -> None:
+        dialog = Adw.ShortcutsDialog()
+
+        general = Adw.ShortcutsSection(title=_("General"))
+        for title, accel in (
+            (_("Add a startup entry"), "<Control>n"),
+            (_("Search"), "<Control>f"),
+            (_("Refresh"), "<Control>r"),
+            (_("Keyboard Shortcuts"), "<Control>question"),
+            (_("Close the window"), "<Control>w"),
+        ):
+            general.add(Adw.ShortcutsItem(title=title, accelerator=accel))
+        dialog.add(general)
+        dialog.present(self)
+
+    def _debug_info(self) -> str:
+        """Sorun bildirimine eklenecek ortam bilgisi."""
+        lines = [
+            "%s %s" % (APP_NAME, __version__),
+            "App ID: %s" % APP_ID,
+            "Python: %s" % platform.python_version(),
+            "GTK: %d.%d.%d" % (
+                Gtk.get_major_version(),
+                Gtk.get_minor_version(),
+                Gtk.get_micro_version(),
+            ),
+            "libadwaita: %d.%d.%d" % (
+                Adw.get_major_version(),
+                Adw.get_minor_version(),
+                Adw.get_micro_version(),
+            ),
+            "OS: %s" % platform.platform(),
+            "Desktop: %s" % (
+                GLib.getenv("XDG_CURRENT_DESKTOP") or "unknown"
+            ),
+            "Session: %s" % (GLib.getenv("XDG_SESSION_TYPE") or "unknown"),
+            "Language: %s" % i18n.current_language(),
+            "Flatpak: %s" % (
+                "yes" if Path("/.flatpak-info").exists() else "no"
+            ),
+        ]
+        return "\n".join(lines)
 
     # ------------------------------------------------------------- yardımcı
 
@@ -763,6 +1345,7 @@ class MainWindow(Adw.ApplicationWindow):
         self.refresh_button.set_tooltip_text(_("Refresh (Ctrl+R)"))
         self.menu_button.set_tooltip_text(_("Menu"))
         self.menu_button.set_menu_model(self._build_menu())
+        self.add_button.set_menu_model(self._build_add_menu())
         self.banner.set_title(_("Changes take effect at your next login."))
         for source, page in self.pages.items():
             self.view_stack.get_page(page).set_title(source.title)
@@ -778,6 +1361,7 @@ class MainWindow(Adw.ApplicationWindow):
         return self.search_entry.get_text().strip()
 
     def reload_all(self) -> None:
+        icons.invalidate()
         for page in self.pages.values():
             page.reload()
 

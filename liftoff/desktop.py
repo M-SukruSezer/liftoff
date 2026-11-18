@@ -92,6 +92,57 @@ class DesktopFile:
                     return by_locale[cand]
         return plain
 
+    def entries(self) -> list[tuple[str, str]]:
+        """Gruptaki tüm anahtarlar: [("Name", "..."), ("Name[tr]", "..."), ...].
+
+        Anahtar adı yerel ek dâhil, dosyadaki sırayla döner.
+        """
+        start, end = self._group_bounds()
+        if start == -1:
+            return []
+        out: list[tuple[str, str]] = []
+        for line in self.lines[start:end]:
+            m = _KEY_RE.match(line)
+            if not m:
+                continue
+            raw = m.group("key") + (m.group("loc") or "")
+            out.append((raw, m.group("value").strip()))
+        return out
+
+    def set_raw(self, raw_key: str, value: str) -> None:
+        """``Name[tr]`` gibi yerel ekli anahtarları da yazar."""
+        key, _, loc = raw_key.partition("[")
+        loc = "[" + loc if loc else None
+        start, end = self._group_bounds()
+        if start == -1:
+            self.lines.insert(0, f"[{GROUP}]")
+            self.lines.insert(1, f"{raw_key}={value}")
+            return
+        for i in range(start, end):
+            m = _KEY_RE.match(self.lines[i])
+            if m and m.group("key") == key and (m.group("loc") or None) == loc:
+                self.lines[i] = f"{raw_key}={value}"
+                return
+        insert_at = end
+        while insert_at > start and not self.lines[insert_at - 1].strip():
+            insert_at -= 1
+        self.lines.insert(insert_at, f"{raw_key}={value}")
+
+    def unset_raw(self, raw_key: str) -> None:
+        key, _, loc = raw_key.partition("[")
+        loc = "[" + loc if loc else None
+        start, end = self._group_bounds()
+        if start == -1:
+            return
+        keep = []
+        for i, line in enumerate(self.lines):
+            if start <= i < end:
+                m = _KEY_RE.match(line)
+                if m and m.group("key") == key and (m.group("loc") or None) == loc:
+                    continue
+            keep.append(line)
+        self.lines = keep
+
     def get_list(self, key: str) -> list[str]:
         raw = self.get(key)
         if not raw:
