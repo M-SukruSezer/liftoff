@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.liftoff.Liftoff</id>
+
+  <name>Liftoff</name>
+  <summary>Manage what starts with your session</summary>
+  <summary xml:lang="tr">Açılışta neyin başlayacağını yönetin</summary>
+
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+
+  <developer id="io.github.liftoff">
+    <name>Liftoff</name>
+  </developer>
+
+  <description>
+    <p>
+      Liftoff shows the applications and services that start by themselves
+      when you turn on your computer, and lets you turn off the ones you do
+      not want.
+    </p>
+    <p>
+      On Linux these are spread across three different places. Liftoff brings
+      them together in one window:
+    </p>
+    <ul>
+      <li>Autostart entries in your home folder and in the system folders</li>
+      <li xml:lang="tr">Ev dizinindeki ve sistem dizinlerindeki autostart girdileri</li>
+      <li>Your own systemd user units</li>
+      <li xml:lang="tr">Kendi systemd kullanıcı birimleriniz</li>
+      <li>System-wide systemd units, with an administrator prompt</li>
+      <li xml:lang="tr">Sistem geneli systemd birimleri, yönetici onayıyla</li>
+    </ul>
+    <p>
+      Every row shows what the entry runs, whether it is running right now,
+      and a warning when turning it off could break your session. Nothing is
+      destroyed: turning a system entry off writes a personal override, and
+      turning it back on restores the original exactly.
+    </p>
+    <p xml:lang="tr">
+      Liftoff, bilgisayar açıldığında kendiliğinden başlayan uygulama ve
+      servisleri gösterir, istemediklerinizi kapatmanızı sağlar.
+    </p>
+    <p xml:lang="tr">
+      Linux'ta bunlar üç ayrı yere dağılmıştır. Liftoff üçünü tek pencerede
+      toplar:
+    </p>
+    <p xml:lang="tr">
+      Her satır girdinin ne çalıştırdığını, o anda çalışıp çalışmadığını ve
+      kapatmanın oturumu bozabileceği durumlarda uyarıyı gösterir. Hiçbir şey
+      kalıcı olarak silinmez: bir sistem girdisini kapatmak kişisel bir
+      geçersiz kılma yazar, tekrar açmak özgün hâli aynen geri getirir.
+    </p>
+  </description>
+
+  <launchable type="desktop-id">io.github.liftoff.Liftoff.desktop</launchable>
+
+  <!-- Görüntüler data/screenshots/ içinde; depo GitHub'a gönderildikten
+       sonra bu adresler açılır. Flathub başvuru anında erişilebilir olmasını
+       şart koşar. -->
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/liftoff/liftoff/main/data/screenshots/applications.png</image>
+      <caption>Applications that start with your session</caption>
+      <caption xml:lang="tr">Oturumla birlikte başlayan uygulamalar</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/liftoff/liftoff/main/data/screenshots/user-services.png</image>
+      <caption>Your own background services</caption>
+      <caption xml:lang="tr">Kendi arka plan servisleriniz</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/liftoff/liftoff/main/data/screenshots/system-services.png</image>
+      <caption>System services, with warnings on critical ones</caption>
+      <caption xml:lang="tr">Sistem servisleri, kritik olanlarda uyarıyla</caption>
+    </screenshot>
+  </screenshots>
+
+  <url type="homepage">https://github.com/liftoff/liftoff</url>
+  <url type="bugtracker">https://github.com/liftoff/liftoff/issues</url>
+  <url type="vcs-browser">https://github.com/liftoff/liftoff</url>
+
+  <content_rating type="oars-1.1"/>
+
+  <branding>
+    <color type="primary" scheme_preference="light">#b07de0</color>
+    <color type="primary" scheme_preference="dark">#19202e</color>
+  </branding>
+
+  <categories>
+    <category>Settings</category>
+    <category>DesktopSettings</category>
+  </categories>
+
+  <keywords>
+    <keyword>autostart</keyword>
+    <keyword>startup</keyword>
+    <keyword>boot</keyword>
+    <keyword>session</keyword>
+    <keyword>systemd</keyword>
+    <keyword translate="no">login</keyword>
+  </keywords>
+
+  <releases>
+    <release version="1.0.0" date="2026-11-18">
+      <description>
+        <p>First release.</p>
+        <p xml:lang="tr">İlk sürüm.</p>
+      </description>
+    </release>
+  </releases>
+</component>

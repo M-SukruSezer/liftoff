@@ -1,0 +1,63 @@
+# Liftoff — Flatpak manifesti
+#
+# Yerel deneme:
+#   flatpak-builder --user --install --force-clean build io.github.liftoff.Liftoff.yaml
+#   flatpak run io.github.liftoff.Liftoff
+#
+# Flathub başvurusu için: aşağıdaki "sources" bölümünde `type: dir` yerine
+# yorumdaki `type: git` bloğunu kullanın ve url/tag değerlerini kendi
+# deponuza göre doldurun. Flathub yerel dizinden derlemeyi kabul etmez.
+
+id: io.github.liftoff.Liftoff
+runtime: org.gnome.Platform
+runtime-version: '51'
+sdk: org.gnome.Sdk
+command: liftoff
+
+finish-args:
+  # --- pencere ve çizim ---
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --share=ipc
+  - --device=dri
+
+  # --- kullanıcının autostart girdileri (okuma + yazma) ---
+  # Oturum yöneticisi yalnızca gerçek ~/.config/autostart dizinini okur,
+  # uygulamanın özel yapılandırma dizinini değil.
+  - --filesystem=xdg-config/autostart:create
+
+  # --- sistem geneli autostart girdileri, salt okunur ---
+  # Bu izin olmadan uygulama /etc/xdg/autostart içindeki 17 girdi yerine
+  # yalnızca runtime'ın kendi 2 girdisini görür (ölçülmüştür).
+  - --filesystem=host-etc:ro
+
+  # --- systemctl ve pkexec host üzerinde çalıştırılır ---
+  # GNOME runtime'ı systemd içermez; bu izin olmadan "Kullanıcı servisleri"
+  # ve "Sistem servisleri" sekmelerinin ikisi de hiç çalışmaz.
+  # GENİŞ BİR İZİNDİR: host'ta komut çalıştırmaya olanak tanır.
+  # README'deki "Flathub incelemesi" bölümüne bakın.
+  - --talk-name=org.freedesktop.Flatpak
+
+modules:
+  - name: liftoff
+    buildsystem: simple
+    build-commands:
+      - install -Dm755 build-aux/liftoff-launcher /app/bin/liftoff
+      - mkdir -p /app/share/liftoff
+      - cp -r liftoff /app/share/liftoff/liftoff
+      - install -Dm644 data/io.github.liftoff.Liftoff.desktop /app/share/applications/io.github.liftoff.Liftoff.desktop
+      - install -Dm644 data/io.github.liftoff.Liftoff.metainfo.xml /app/share/metainfo/io.github.liftoff.Liftoff.metainfo.xml
+      - install -Dm644 data/io.github.liftoff.Liftoff.svg /app/share/icons/hicolor/scalable/apps/io.github.liftoff.Liftoff.svg
+      - install -Dm644 data/io.github.liftoff.Liftoff-symbolic.svg /app/share/icons/hicolor/symbolic/apps/io.github.liftoff.Liftoff-symbolic.svg
+    sources:
+      - type: dir
+        path: .
+        skip:
+          - .git
+          - build
+          - .flatpak-builder
+      # Flathub için yukarıdaki yerine:
+      # - type: git
+      #   url: https://github.com/<kullanıcı-adınız>/liftoff.git
+      #   tag: v1.0.0
+      #   commit: <tag'in tam commit sha'sı>

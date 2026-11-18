@@ -1,0 +1,15 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Liftoff
+GenericName=Startup Applications
+GenericName[tr]=Başlangıç Uygulamaları
+Comment=See and disable the applications and services that start automatically
+Comment[tr]=Bilgisayar açıldığında kendiliğinden başlayan uygulama ve servisleri görün, kapatın
+Exec=liftoff
+Icon=io.github.liftoff.Liftoff
+Terminal=false
+Categories=GTK;Settings;DesktopSettings;
+Keywords=autostart;startup;boot;session;service;systemd;login;
+Keywords[tr]=başlangıç;açılış;otomatik;oturum;servis;systemd;giriş;
+StartupNotify=true

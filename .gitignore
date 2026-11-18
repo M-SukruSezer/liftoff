@@ -1,0 +1,7 @@
+__pycache__/
+*.py[cod]
+
+# Flatpak derleme çıktıları
+/build/
+/repo/
+/.flatpak-builder/

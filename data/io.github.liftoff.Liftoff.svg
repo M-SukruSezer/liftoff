@@ -1,0 +1,182 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <!-- Dış Zemine Düşen Yumuşak Gölge Gradyanı -->
+    <radialGradient id="floorShadow" cx="50%" cy="50%" r="50%">
+      <stop offset="65%" stop-color="#04060a" stop-opacity="0.85" />
+      <stop offset="88%" stop-color="#04060a" stop-opacity="0.35" />
+      <stop offset="100%" stop-color="#04060a" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- İkon Gövdesi 3B Yan Duvar (Extrusion) Gradyanı -->
+    <linearGradient id="squircleSide" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4f46e5" />
+      <stop offset="35%" stop-color="#1e2536" />
+      <stop offset="70%" stop-color="#111622" />
+      <stop offset="100%" stop-color="#3b2659" />
+    </linearGradient>
+
+    <!-- İkon Ön Yüzey Gradyanı -->
+    <linearGradient id="squircleFace" x1="12%" y1="8%" x2="88%" y2="92%">
+      <stop offset="0%" stop-color="#273145" />
+      <stop offset="45%" stop-color="#19202e" />
+      <stop offset="100%" stop-color="#101520" />
+    </linearGradient>
+
+    <!-- İkon Kenar Parlama Çerçevesi -->
+    <linearGradient id="squircleRim" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c7d2fe" stop-opacity="0.9" />
+      <stop offset="28%" stop-color="#f9a8d4" stop-opacity="0.45" />
+      <stop offset="65%" stop-color="#fdba74" stop-opacity="0.55" />
+      <stop offset="100%" stop-color="#a5b4fc" stop-opacity="0.85" />
+    </linearGradient>
+
+    <!-- Kedi Zemine Düşen Gölge Gradyanı -->
+    <linearGradient id="catDropShadow" x1="20%" y1="10%" x2="80%" y2="90%">
+      <stop offset="0%" stop-color="#06080f" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#04060a" stop-opacity="0.95" />
+    </linearGradient>
+
+    <!-- Kedi 3B Alt/Sağ Ekstrüzyon (Kalınlık Duvarı) Gradyanı -->
+    <linearGradient id="catExtrude" x1="15%" y1="15%" x2="85%" y2="85%">
+      <stop offset="0%" stop-color="#9a3412" />
+      <stop offset="35%" stop-color="#9d174d" />
+      <stop offset="70%" stop-color="#581c87" />
+      <stop offset="100%" stop-color="#2e1065" />
+    </linearGradient>
+
+    <!-- Kedi Ana Gövde Renk Geçişi -->
+    <linearGradient id="catMain" x1="18%" y1="14%" x2="82%" y2="86%">
+      <stop offset="0%" stop-color="#ff922b" />
+      <stop offset="26%" stop-color="#ff5d5d" />
+      <stop offset="54%" stop-color="#e040fb" />
+      <stop offset="80%" stop-color="#8b5cf6" />
+      <stop offset="100%" stop-color="#6d28d9" />
+    </linearGradient>
+
+    <!-- Sağ Alt Sıcak Turuncu Yansıma -->
+    <radialGradient id="warmBounce" cx="72%" cy="68%" r="44%">
+      <stop offset="0%" stop-color="#ff7b00" stop-opacity="0.95" />
+      <stop offset="52%" stop-color="#ff477e" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#7c3aed" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Sağ Üst Kulak Mor-Pembe Yansıma -->
+    <radialGradient id="coolBounce" cx="80%" cy="22%" r="28%">
+      <stop offset="0%" stop-color="#d8b4fe" stop-opacity="0.92" />
+      <stop offset="60%" stop-color="#c084fc" stop-opacity="0.35" />
+      <stop offset="100%" stop-color="#c084fc" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Kedi Üst Yüzey 3B Bombeli Parlama (Specular Highlight) -->
+    <linearGradient id="catHighlight" x1="15%" y1="5%" x2="75%" y2="95%">
+      <stop offset="0%" stop-color="#fff3e0" stop-opacity="0.72" />
+      <stop offset="35%" stop-color="#ffd6e7" stop-opacity="0.28" />
+      <stop offset="70%" stop-color="#ffffff" stop-opacity="0.06" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.22" />
+    </linearGradient>
+
+    <!-- Kedi Alt Kenar Derinlik Gölgesi -->
+    <linearGradient id="catInnerShade" x1="80%" y1="85%" x2="20%" y2="15%">
+      <stop offset="0%" stop-color="#1e0536" stop-opacity="0.55" />
+      <stop offset="45%" stop-color="#3b0764" stop-opacity="0.18" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+    </linearGradient>
+
+    <!-- Kusursuz Simetrik ve Akıcı Kedi Silüeti -->
+    <path id="catSilhouette" d="
+      M 256 264
+      C 226 264, 226 326, 256 326
+      L 320 326
+      C 358 326, 368 370, 332 406
+      L 246 492
+      C 190 548, 186 644, 232 712
+      C 264 760, 314 784, 386 784
+      L 668 784
+      C 756 784, 806 736, 806 652
+      L 806 212
+      C 806 196, 792 192, 782 204
+      L 732 264
+      C 724 272, 714 274, 700 274
+      L 654 274
+      C 640 274, 630 272, 622 264
+      L 572 204
+      C 562 192, 548 196, 548 212
+      L 548 394
+      C 548 446, 578 474, 616 490
+      C 634 498, 634 522, 616 534
+      C 596 548, 572 554, 534 554
+      L 462 554
+      C 406 554, 372 586, 356 636
+      C 346 668, 324 684, 300 680
+      C 268 674, 258 624, 286 574
+      C 304 542, 334 512, 372 474
+      C 432 414, 434 328, 384 284
+      C 360 264, 332 264, 298 264
+      Z
+    " />
+
+    <!-- Kedi İç Maske (Parlama ve gölge taşmalarını kesmek için) -->
+    <clipPath id="catClip">
+      <use href="#catSilhouette" />
+    </clipPath>
+  </defs>
+
+  <!-- 1. Zemin Ortam Gölgesi -->
+  <ellipse cx="512" cy="952" rx="390" ry="38" fill="url(#floorShadow)" />
+
+  <!-- 2. İkon Tabanı 3B Kalınlık Katmanı (Alt Duvar) -->
+  <rect x="92" y="106" width="840" height="840" rx="200" ry="200" fill="url(#squircleSide)" />
+  <rect x="92" y="106" width="840" height="840" rx="200" ry="200" fill="none" stroke="url(#squircleRim)" stroke-width="4" opacity="0.75" />
+
+  <!-- 3. İkon Tabanı Ana Ön Yüzey -->
+  <rect x="92" y="90" width="840" height="840" rx="200" ry="200" fill="url(#squircleFace)" />
+
+  <!-- 4. İkon İç Cam/Metalik Kenar Parlaması -->
+  <rect x="95" y="93" width="834" height="834" rx="197" ry="197" fill="none" stroke="url(#squircleRim)" stroke-width="5" />
+  <rect x="103" y="101" width="818" height="818" rx="189" ry="189" fill="none" stroke="#ffffff" stroke-opacity="0.12" stroke-width="2.5" />
+
+  <!-- 5. Kedi Zemine Düşen Yumuşak Çok Katmanlı Vektör Gölgesi -->
+  <g transform="translate(-16, 28)" opacity="0.22">
+    <use href="#catSilhouette" fill="#030508" />
+  </g>
+  <g transform="translate(-10, 18)" opacity="0.42">
+    <use href="#catSilhouette" fill="#04060b" />
+  </g>
+  <g transform="translate(-5, 10)" opacity="0.65">
+    <use href="#catSilhouette" fill="url(#catDropShadow)" />
+  </g>
+
+  <!-- 6. Kedi 3B Yan Duvar / Kalınlık Katmanı (Extrusion) -->
+  <g transform="translate(-4, 8)">
+    <use href="#catSilhouette" fill="url(#catExtrude)" />
+  </g>
+  <g transform="translate(-2, 4)">
+    <use href="#catSilhouette" fill="url(#catExtrude)" opacity="0.85" />
+  </g>
+
+  <!-- 7. Kedi Ana Gövde ve Renk Geçişleri -->
+  <use href="#catSilhouette" fill="url(#catMain)" />
+  <use href="#catSilhouette" fill="url(#warmBounce)" />
+  <use href="#catSilhouette" fill="url(#coolBounce)" />
+
+  <!-- 8. Kedi 3B Bombeli Yüzey Işık ve Gölge Modellemesi (Kırpılmış İç Katmanlar) -->
+  <g clip-path="url(#catClip)">
+    <!-- Alt/Sağ Koyu Hacim Gölgesi -->
+    <use href="#catSilhouette" fill="url(#catInnerShade)" />
+
+    <!-- Üst/Sol Kenar Keskin Specular Işık Yansıması -->
+    <g transform="translate(8, 10)">
+      <use href="#catSilhouette" fill="none" stroke="url(#catHighlight)" stroke-width="18" stroke-linejoin="round" />
+    </g>
+
+    <!-- İnce Kenar Parıltısı (Rim Highlight) -->
+    <g transform="translate(3, 4)">
+      <use href="#catSilhouette" fill="none" stroke="#ffffff" stroke-opacity="0.45" stroke-width="5" stroke-linejoin="round" />
+    </g>
+
+    <!-- Alt Kenar Koyu Kontur Derinliği -->
+    <g transform="translate(-6, -8)">
+      <use href="#catSilhouette" fill="none" stroke="#16042b" stroke-opacity="0.42" stroke-width="14" stroke-linejoin="round" />
+    </g>
+  </g>
+</svg>

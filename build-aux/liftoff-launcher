@@ -1,0 +1,5 @@
+#!/bin/sh
+# Liftoff — Flatpak içindeki başlatıcı.
+# Paket /app/share/liftoff altına kurulur, modül olarak çalıştırılır.
+exec env PYTHONPATH="/app/share/liftoff${PYTHONPATH:+:$PYTHONPATH}" \
+     python3 -m liftoff "$@"
